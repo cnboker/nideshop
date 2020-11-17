@@ -123,7 +123,7 @@ module.exports = class extends Base {
       await this.model('search_history').add({
         keyword: keyword,
         user_id: this.getLoginUserId(),
-        add_time: parseInt(new Date().getTime() / 1000)
+        add_time: parseInt(Date.now())
       });
     }
 

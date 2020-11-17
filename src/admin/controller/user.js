@@ -6,25 +6,22 @@ module.exports = class extends Base {
    * @return {Promise} []
    */
   async indexAction() {
-    const page = this.get('page') || 1;
-    const size = this.get('size') || 10;
-    const name = this.get('name') || '';
-
+    const {page, size, filter, sort} = this.queryParams();
     const model = this.model('user');
-    const data = await model.where({username: ['like', `%${name}%`]}).order(['id DESC']).page(page, size).countSelect();
+    const data = await model.where(filter).order(sort).page(page, size).countSelect();
 
-    return this.success(data);
+    return this.simplePageRest(data);
   }
 
-  async infoAction() {
+  async getAction() {
     const id = this.get('id');
     const model = this.model('user');
     const data = await model.where({id: id}).find();
 
-    return this.success(data);
+    return this.simpleRest(data);
   }
 
-  async storeAction() {
+  async postAction() {
     if (!this.isPost) {
       return false;
     }
@@ -44,7 +41,7 @@ module.exports = class extends Base {
     return this.success(values);
   }
 
-  async destoryAction() {
+  async deleteAction() {
     const id = this.post('id');
     await this.model('user').where({id: id}).limit(1).delete();
     // TODO 删除图片

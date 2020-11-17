@@ -14,6 +14,10 @@
 git clone https://github.com/tumobi/nideshop
 ```
 + 创建数据库nideshop并导入项目根目录下的nideshop.sql
+### import sql file
+```
+mysql -u root -p nideshop < nideshop.sql
+```
 ```
 CREATE SCHEMA `nideshop` DEFAULT CHARACTER SET utf8mb4 ;
 ```
@@ -60,11 +64,6 @@ npm start
 ```
 访问http://127.0.0.1:8360/
 
-### 线上部署
-[云服务器ECS-云主机优惠-2折上云](https://promotion.aliyun.com/ntms/act/qwbk.html?userCode=3grpysgf)
-
-[在阿里云（CentOS 7）上部署文档](https://www.nideshop.com/documents/nideshop-manual/deployment-centos)
-
 
 ### 微信小程序客户端截图
 
@@ -98,3 +97,16 @@ npm start
 喜欢别忘了 Star，有问题可通过微信、公众号、QQ 群联系我，谢谢您的关注。
 
 ![联系方式](http://nideshop-static.childsay.com/nideshop-qrcode.png)
+
+### 默认密码
+使用admin/jiafeimao登录项目
+
+# windows cmd
+set DEBUG=think-router && npm start
+
+# windows powershell
+$env:DEBUG="think-router"
+npm start
+
+# Linux and Mac
+DEBUG=think-router npm start

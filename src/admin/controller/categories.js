@@ -7,7 +7,10 @@ module.exports = class extends Base {
    */
   async indexAction() {
     const model = this.model('category');
-    const data = await model.where({is_show: 1}).order(['sort_order ASC']).select();
+    const data = await model
+      .where({is_show: 1})
+      .order(['sort_order ASC'])
+      .select();
     const topCategory = data.filter((item) => {
       return item.parent_id === 0;
     });
@@ -22,25 +25,33 @@ module.exports = class extends Base {
         }
       });
     });
-    return this.success(categoryList);
+    return this.simpleRest(categoryList);
   }
 
   async topCategoryAction() {
     const model = this.model('category');
-    const data = await model.where({parent_id: 0}).order(['id ASC']).select();
+    const data = await model
+      .where({parent_id: 0})
+      .order(['id ASC'])
+      .select();
 
-    return this.success(data);
+    return this.simpleRest(data);
   }
 
-  async infoAction() {
+  async getAction() {
     const id = this.get('id');
+    if (!id) {
+      return this.indexAction();
+    }
     const model = this.model('category');
-    const data = await model.where({id: id}).find();
+    const data = await model
+      .where({id: id})
+      .find();
 
-    return this.success(data);
+    return this.simpleRest(data);
   }
 
-  async storeAction() {
+  async postAction() {
     if (!this.isPost) {
       return false;
     }
@@ -49,21 +60,29 @@ module.exports = class extends Base {
     const id = this.post('id');
 
     const model = this.model('category');
-    values.is_show = values.is_show ? 1 : 0;
+    values.is_show = values.is_show
+      ? 1
+      : 0;
     if (id > 0) {
-      await model.where({id: id}).update(values);
+      await model
+        .where({id: id})
+        .update(values);
     } else {
       delete values.id;
       await model.add(values);
     }
-    return this.success(values);
+    return this.simpleRest(values);
   }
 
   async destoryAction() {
     const id = this.post('id');
-    await this.model('category').where({id: id}).limit(1).delete();
+    await this
+      .model('category')
+      .where({id: id})
+      .limit(1)
+      .delete();
     // TODO 删除图片
 
-    return this.success();
+    return this.simpleRest();
   }
 };
