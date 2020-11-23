@@ -339,9 +339,9 @@ CREATE TABLE `nideshop_cart` (
   `market_price` decimal(10,2) unsigned NOT NULL DEFAULT '0.00',
   `retail_price` decimal(10,2) NOT NULL DEFAULT '0.00',
   `number` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `goods_specifition_name_value` text NOT NULL COMMENT '规格属性组成的字符串，用来显示用',
-  `goods_specifition_ids` varchar(60) NOT NULL DEFAULT '' COMMENT 'product表对应的goods_specifition_ids',
-  `checked` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `goods_specifition_name_value` text ,
+  `goods_specifition_ids` varchar(60) ,
+  `checked` tinyint(1) unsigned,
   `list_pic_url` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `session_id` (`session_id`)
@@ -375,9 +375,10 @@ CREATE TABLE `nideshop_category` (
 -- Records of nideshop_category
 -- ----------------------------
 BEGIN;
-INSERT INTO `nideshop_category` VALUES (1, '3~6岁', '', '', 0, 2, 1, 1, 'http://yanxuan.nosdn.127.net/92357337378cce650797444bc107b0f7.jpg', 'http://yanxuan.nosdn.127.net/a45c2c262a476fea0b9fc684fed91ef5.png', '//nos.netease.com/yanxuan/f0d0e1a542e2095861b42bf789d948ce.jpg', 'http://yanxuan.nosdn.127.net/e8bf0cf08cf7eda21606ab191762e35c.png', 'L1', 0, '回家，放松身心');
-INSERT INTO `nideshop_category` VALUES (2, '6～8岁', '', '', 0, 3, 2, 1, 'http://yanxuan.nosdn.127.net/f4ff8b3d5b0767d4e578575c1fd6b921.jpg', 'http://yanxuan.nosdn.127.net/ad8b00d084cb7d0958998edb5fee9c0a.png', '//nos.netease.com/yanxuan/88855173a0cfcfd889ee6394a3259c4f.jpg', 'http://yanxuan.nosdn.127.net/3708dbcb35ad5abf9e001500f73db615.png', 'L1', 0, '爱，囿于厨房');
-INSERT INTO `nideshop_category` VALUES (3, '8～12岁', '', '', 0, 9, 8, 1, 'http://yanxuan.nosdn.127.net/dd6cc8a7e996936768db5634f12447ed.jpg', 'http://yanxuan.nosdn.127.net/c9280327a3fd2374c000f6bf52dff6eb.png', '//nos.netease.com/yanxuan/9a29ef4f41c305a12e1459f12abd290f.jpg', 'http://yanxuan.nosdn.127.net/fb670ff3511182833e5b035275e4ac09.png', 'L1', 0, '好吃，高颜值美食');
+INSERT INTO `nideshop_category` VALUES (1, '童书推荐', '', '', 0, 2, 1, 1, '', '', '', '', 'L1', 0, '');
+INSERT INTO `nideshop_category` VALUES (2, '英语童书', '', '', 0, 3, 2, 1, 'http://yanxuan.nosdn.127.net/f4ff8b3d5b0767d4e578575c1fd6b921.jpg', 'http://yanxuan.nosdn.127.net/ad8b00d084cb7d0958998edb5fee9c0a.png', '//nos.netease.com/yanxuan/88855173a0cfcfd889ee6394a3259c4f.jpg', 'http://yanxuan.nosdn.127.net/3708dbcb35ad5abf9e001500f73db615.png', 'L1', 0, '爱，囿于厨房');
+INSERT INTO `nideshop_category` VALUES (3, '中文童书', '', '', 0, 9, 8, 1, 'http://yanxuan.nosdn.127.net/dd6cc8a7e996936768db5634f12447ed.jpg', 'http://yanxuan.nosdn.127.net/c9280327a3fd2374c000f6bf52dff6eb.png', '//nos.netease.com/yanxuan/9a29ef4f41c305a12e1459f12abd290f.jpg', 'http://yanxuan.nosdn.127.net/fb670ff3511182833e5b035275e4ac09.png', 'L1', 0, '好吃，高颜值美食');
+INSERT INTO `nideshop_category` VALUES (4, '系列童书', '', '', 0, 2, 1, 1, '', '', '', '', 'L1', 0, '');
 COMMIT;
 
 -- ----------------------------
@@ -421,19 +422,6 @@ CREATE TABLE `nideshop_collect` (
   KEY `is_attention` (`is_attention`)
 ) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8mb4;
 
--- ----------------------------
--- Records of nideshop_collect
--- ----------------------------
-BEGIN;
-INSERT INTO `nideshop_collect` VALUES (17, 1, 1181000, 1495381237, 0, 0);
-INSERT INTO `nideshop_collect` VALUES (18, 1, 1015007, 1495466325, 0, 0);
-INSERT INTO `nideshop_collect` VALUES (19, 1, 1152161, 1495970357, 0, 0);
-INSERT INTO `nideshop_collect` VALUES (21, 1, 1156006, 1497685421, 0, 0);
-INSERT INTO `nideshop_collect` VALUES (47, 11, 1009012, 1500987979, 0, 0);
-INSERT INTO `nideshop_collect` VALUES (44, 11, 1134030, 1500987695, 0, 0);
-INSERT INTO `nideshop_collect` VALUES (33, 11, 1015007, 1500823262, 0, 0);
-INSERT INTO `nideshop_collect` VALUES (31, 11, 1011004, 1500822827, 0, 0);
-COMMIT;
 
 -- ----------------------------
 -- Table structure for nideshop_comment
@@ -546,25 +534,25 @@ CREATE TABLE `nideshop_goods` (
   `id` int(11) unsigned NOT NULL,
   `category_id` int(11) unsigned NOT NULL DEFAULT '0',
   `goods_sn` varchar(60) NOT NULL DEFAULT '',
-  `name` varchar(120) NOT NULL DEFAULT '',
+  `name` varchar(256) NOT NULL DEFAULT '',
   `brand_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `goods_number` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `stock` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT '库存',
   `keywords` varchar(255) NOT NULL DEFAULT '',
-  `goods_brief` varchar(255) NOT NULL DEFAULT '',
+  `goods_brief` varchar(500) NOT NULL DEFAULT '',
   `goods_desc` text,
-  `is_on_sale` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `is_on_sale` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '可用',
   `add_time` int(10) unsigned NOT NULL DEFAULT '0',
   `sort_order` smallint(4) unsigned NOT NULL DEFAULT '100',
   `is_delete` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `attribute_category` int(11) unsigned NOT NULL DEFAULT '0',
   `counter_price` decimal(10,2) unsigned NOT NULL DEFAULT '0.00' COMMENT '专柜价格',
   `extra_price` decimal(10,2) unsigned NOT NULL DEFAULT '0.00' COMMENT '附加价格',
-  `is_new` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `is_new` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '新书',
   `goods_unit` varchar(45)  COMMENT '商品单位',
   `primary_pic_url` varchar(255) NOT NULL COMMENT '商品主图',
   `list_pic_url` varchar(255) NOT NULL COMMENT '商品列表图',
   `retail_price` decimal(10,2) unsigned NOT NULL DEFAULT '0.00' COMMENT '零售价格',
-  `sell_volume` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '销售量',
+  `check_times` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '借阅次数',
   `primary_product_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '主sku　product_id',
   `unit_price` decimal(10,2) unsigned NOT NULL DEFAULT '0.00' COMMENT '单位价格，单价',
   `promotion_desc` varchar(255) ,
@@ -572,25 +560,26 @@ CREATE TABLE `nideshop_goods` (
   `app_exclusive_price` decimal(10,2) unsigned  COMMENT 'APP专享价',
   `is_app_exclusive` tinyint(1) unsigned  COMMENT '是否是APP专属',
   `is_limited` tinyint(1) unsigned ,
-  `is_hot` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `is_hot` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '热门',
   `ISBN` varchar(128),
   `author` varchar(128),
   `publisher` varchar(128),
+  `publishdate` int(10) unsigned ,
   `stock_location` varchar(128),
   PRIMARY KEY (`id`),
   KEY `goods_sn` (`goods_sn`),
   KEY `cat_id` (`category_id`),
   KEY `brand_id` (`brand_id`),
-  KEY `goods_number` (`goods_number`),
   KEY `sort_order` (`sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+LOCK TABLES `nideshop_goods` WRITE;
+/*!40000 ALTER TABLE `nideshop_goods` DISABLE KEYS */;
+INSERT INTO `nideshop_goods` VALUES (1,1,'1021000','How Big Are Your Worries Little Bear',0,100,'','','Little Bear is a worrier. He worries about everything! But with Mama Bear’s help, he soon learns his worries are not so big after all.Through this engaging and beautifully illustrated story, children will learn that everyday worries and fears can be overcome. It just takes a willingness to share with a helpful listener, and an understanding that making mistakes is how we learn.',1,0,7,0,0,0.00,0.00,1,'本','/static/upload/images/1605854939304.jpg','/static/upload/images/thumbnail/1605854939304.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100000','Jayneen Sanders','',0,''),(2,1,'1021003','Hey Warrior!',0,100,'','','A fantastic book to help children understand what actually happens in their brain when they experience anxiety. Kids can do amazing things with the right information. Understanding why anxiety feels the way it does, and where the physical symptoms come from, is a powerful step in turning anxiety around. This book is an amazing resource for kids 5 years and above who feel anxious and overwhelmed by those feelings.',1,0,7,0,0,0.00,0.00,1,'本','/static/upload/images/1605854735547.jpg','/static/upload/images/thumbnail/1605854735547.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100001','scott','',0,''),(3,2,'1021004','The Huge Bag of Worries',0,100,'','','Wherever Jenny goes, her worries follow her — in a big blue bag. They are there when she goes swimming, when she is watching TV, and even when she is in the lavatory. Jenny decides they will have to go. But who can help her? A great book to use with anxious children as it helps sort worries through and make them seem more manageable. It emphasizes that we all have worries and what to do about them.',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605854963252.jpg','/static/upload/images/thumbnail/1605854963252.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,1,'100002','Karen Young','',0,''),(4,2,'1021005','When My Worries Get too Big',0,100,'','','More than any other issue, \'losing control\' can cause major problems for children. Through the irresistible character of Nicholas, this book gives young children an opportunity to explore with parents or teachers their own feelings as they react to events in their daily lives while learning some useful relaxation techniques. Children who use the simple strategies presented in this charming book, illustrated by the author, will find themselves relaxed and ready to work or play.',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605854990382.jpg','/static/upload/images/thumbnail/1605854990382.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,1,'100003','Virginia Ironside','',0,''),(5,3,'1021006','What to Do When You Worry Too Much',0,100,'','','\"What to Do When You Worry Too Much\" is an interactive self-help book designed to guide 6-12 year olds and their parents through the cognitive-behavioral techniques most often used in the treatment of generalized anxiety. Engaging, encouraging, and easy to follow, this book educates, motivates, and em',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605854976168.jpg','/static/upload/images/thumbnail/1605854976168.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100004','Kari Dunn Buron','',0,''),(6,3,'1021007','Wilma Jean the Worry Machine',0,100,'','','This book, suitable for younger children, embraces life\'s happy accidents, the mistakes and mess-ups that can lead to self-discovery. Todd Parr brings a timely theme to life with his signature bold, kid-friendly illustrations and a passion for making readers feel good about themselves, encouraging them to try new things, experiment, and dare to explore new paths.',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605855016901.jpg','/static/upload/images/thumbnail/1605855016901.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100005','Dawn Huebner','',0,''),(7,4,'1021008','David and the Worry Beast',0,100,'','','Everyone feels fear, worry and apprehension from time to time, but when these feelings prevent a person from doing what he/she wants and/or needs to do, anxiety becomes a disability. This fun and humorous book addresses the problem of anxiety in a way that relates to children of all ages. It offers creative strategies for parents and teachers to use that can lessen the severity of anxiety. The goal of the bo',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605854607147.jpg','/static/upload/images/thumbnail/1605854607147.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100006','Todd Parr','',0,''),(8,4,'1021009','When Worry Takes Hold',0,100,'','','David could not stop thinking about the basket he had missed at the end of the big game. He was worried that he might do it again. He was worried that his team mates would be angry with him. He was worried that his parents would not be proud of him. He was also worried about an upcoming math test. In fact, David was worried a lot. \" Luckily, David finally confided in his parents and school nurse, both of whom gave him support and techniques for controlling the \"worry beast\" within him.',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605855003875.jpg','/static/upload/images/thumbnail/1605855003875.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100007','Julia Cook','',0,'');
+/*!40000 ALTER TABLE `nideshop_goods` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
--- stock int(11) unsigned NOT NULL DEFAULT '0' COMMENT '库存',
-ALTER TABLE `nideshop_goods`
-  ADD stock int(11) unsigned NOT NULL DEFAULT '0' COMMENT '库存';
-ALTER TABLE nideshop_goods MODIFY id int NOT NULL AUTO_INCREMENT;
 -- ----------------------------
 -- Table structure for nideshop_goods_attribute
 -- ----------------------------
@@ -761,13 +750,15 @@ CREATE TABLE `nideshop_command` (
 
 -- ----------------------------
 -- Table structure for nideshop_order
+-- order_status: 'temporary' 临时订单，指未付款,卡付款整个后改成 ordered, 'ordered' | 'delivered' | 'cancelled' | 'received' | 'returning' | 'returned'
 -- ----------------------------
 DROP TABLE IF EXISTS `nideshop_order`;
 CREATE TABLE `nideshop_order` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `order_sn` varchar(20) NOT NULL DEFAULT '',
+  `mycard_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `user_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `order_status` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `order_status` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '订单状态,',
   `shipping_status` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `pay_status` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `consignee` varchar(60) NOT NULL DEFAULT '',
@@ -830,6 +821,7 @@ CREATE TABLE `nideshop_order_express` (
 DROP TABLE IF EXISTS `nideshop_order_goods`;
 CREATE TABLE `nideshop_order_goods` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `order_sn` varchar(20) NOT NULL DEFAULT '',
   `order_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `goods_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `goods_name` varchar(120) NOT NULL DEFAULT '',
@@ -876,17 +868,44 @@ COMMIT;
 DROP TABLE IF EXISTS `nideshop_mycard`;
 CREATE TABLE `nideshop_mycard` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `order_sn` varchar(20) NOT NULL DEFAULT '',
+  `name` varchar(120) NOT NULL DEFAULT '',
+  `remark` varchar(256) NOT NULL DEFAULT '',
+  `price` decimal(10,2) unsigned NOT NULL DEFAULT '0.00', 
+  `useTimes` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '卡次数，0表示不限制次数',
+  `duration` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '有效天数',
+  `discount_price` decimal(10,2) unsigned NOT NULL DEFAULT '0.00',
   `user_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `card_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `total` decimal(10,2) unsigned NOT NULL DEFAULT '0.00',
+  `total` decimal(10,2) unsigned NOT NULL DEFAULT '0.00' COMMENT '实际付款费用',
   `date` int(11) NOT NULL DEFAULT '0' COMMENT '购买日期',
   `activateDate` int(11) NOT NULL DEFAULT '0' COMMENT '激活日期',
   `expiredDate` int(11) NOT NULL DEFAULT '0' COMMENT '添加时间',
   `isValid` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `useTimes` smallint(5) unsigned NOT NULL DEFAULT '1' COMMENT '卡实际次数，0表示不限制次数',
-  `leftTimes` smallint(5) unsigned NOT NULL DEFAULT '1'COMMENT '次卡还剩多少次',
+  `leftTimes` smallint(5) unsigned NOT NULL DEFAULT '1' COMMENT '次卡还剩多少次',
    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=245 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Table structure for 付款表
+-- ----------------------------
+DROP TABLE IF EXISTS `nideshop_payment`;
+CREATE TABLE `nideshop_payment` (
+  `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `order_sn` varchar(20) NOT NULL DEFAULT '',
+  `user_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `title` varchar(200) NOT NULL DEFAULT '',
+  `paymethod` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '0:微信支付，1:支付宝', 
+  `cardPrice` decimal(10,2) unsigned NOT NULL DEFAULT '0.00',
+  `deposit` decimal(10,2) unsigned NOT NULL DEFAULT '0.00' COMMENT '押金',
+  `date` int(11) NOT NULL DEFAULT '0' COMMENT '添加时间1',
+  `overdueDate` int(11) NOT NULL DEFAULT '0' COMMENT '逾期日期，逾期自动删除',
+  `pay_time` int(11) NOT NULL DEFAULT '0' COMMENT '付款时间，原来order表上的付款状态无效，但保留物流信息',
+  `pay_status` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '0:未付款,1:已付款',
+  `freight_price` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '配送费用',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4;
+
 -- ----------------------------
 -- Table structure for nideshop_invoice
 -- ----------------------------
@@ -894,7 +913,7 @@ DROP TABLE IF EXISTS `nideshop_invoice`;
 CREATE TABLE `nideshop_invoice` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `card_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `title` varchar(200) NOT NULL DEFAULT '',
   `total` decimal(10,2) unsigned NOT NULL DEFAULT '0.00',
   `date` int(11) NOT NULL DEFAULT '0' COMMENT '添加时间',
   PRIMARY KEY (`id`)
@@ -932,6 +951,248 @@ INSERT INTO `nideshop_product` VALUES (11, 1006014, '', '1006014', 100, 1399.00)
 INSERT INTO `nideshop_product` VALUES (12, 1006051, '', '1006051', 100, 59.00);
 INSERT INTO `nideshop_product` VALUES (13, 1009009, '', '1009009', 100, 1999.00);
 COMMIT;
+
+
+-- ----------------------------
+-- Table structure for nideshop_related_goods
+-- ----------------------------
+DROP TABLE IF EXISTS `nideshop_related_goods`;
+CREATE TABLE `nideshop_related_goods` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `goods_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `related_goods_id` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Table structure for nideshop_search_history
+-- ----------------------------
+DROP TABLE IF EXISTS `nideshop_search_history`;
+CREATE TABLE `nideshop_search_history` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `keyword` char(50) NOT NULL,
+  `from` varchar(45) NOT NULL DEFAULT '' COMMENT '搜索来源，如PC、小程序、APP等',
+  `add_time` int(11) NOT NULL DEFAULT '0' COMMENT '搜索时间',
+  `user_id` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Records of nideshop_search_history
+-- ----------------------------
+BEGIN;
+INSERT INTO `nideshop_search_history` VALUES (23, '母亲节', '', 1500564813, '1');
+INSERT INTO `nideshop_search_history` VALUES (24, '日式', '', 1500564816, '1');
+INSERT INTO `nideshop_search_history` VALUES (25, '日式', '', 1500564822, '1');
+INSERT INTO `nideshop_search_history` VALUES (26, '清新', '', 1500564835, '1');
+INSERT INTO `nideshop_search_history` VALUES (27, '日式', '', 1500638161, '1');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for nideshop_shipper
+-- ----------------------------
+DROP TABLE IF EXISTS `nideshop_shipper`;
+CREATE TABLE `nideshop_shipper` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '快递公司名称',
+  `code` varchar(10) NOT NULL DEFAULT '' COMMENT '快递公司代码',
+  `sort_order` int(11) NOT NULL DEFAULT '10' COMMENT '排序',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `nideshop_shipper_id_uindex` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COMMENT='快递公司';
+
+-- ----------------------------
+-- Records of nideshop_shipper
+-- ----------------------------
+BEGIN;
+INSERT INTO `nideshop_shipper` VALUES (1, '顺丰速运', 'SF', 1);
+INSERT INTO `nideshop_shipper` VALUES (2, '百世快递', 'HTKY', 2);
+INSERT INTO `nideshop_shipper` VALUES (3, '中通快递', 'ZTO', 3);
+INSERT INTO `nideshop_shipper` VALUES (4, '申通快递', 'STO', 4);
+INSERT INTO `nideshop_shipper` VALUES (5, '圆通速递', 'YTO', 5);
+INSERT INTO `nideshop_shipper` VALUES (6, '韵达速递', 'YD', 6);
+INSERT INTO `nideshop_shipper` VALUES (7, '邮政快递包裹', 'YZPY', 7);
+INSERT INTO `nideshop_shipper` VALUES (8, 'EMS', 'EMS', 8);
+INSERT INTO `nideshop_shipper` VALUES (9, '天天快递', 'HHTT', 9);
+INSERT INTO `nideshop_shipper` VALUES (10, '京东物流', 'JD', 10);
+INSERT INTO `nideshop_shipper` VALUES (11, '全峰快递', 'QFKD', 11);
+INSERT INTO `nideshop_shipper` VALUES (12, '国通快递', 'GTO', 12);
+INSERT INTO `nideshop_shipper` VALUES (13, '优速快递', 'UC', 13);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for nideshop_specification
+-- ----------------------------
+DROP TABLE IF EXISTS `nideshop_specification`;
+CREATE TABLE `nideshop_specification` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(60) NOT NULL DEFAULT '',
+  `sort_order` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='规格表';
+
+-- ----------------------------
+-- Records of nideshop_specification
+-- ----------------------------
+BEGIN;
+INSERT INTO `nideshop_specification` VALUES (1, '颜色', 1);
+INSERT INTO `nideshop_specification` VALUES (2, '规格', 2);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for nideshop_topic
+-- ----------------------------
+DROP TABLE IF EXISTS `nideshop_topic`;
+CREATE TABLE `nideshop_topic` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL DEFAULT '''''',
+  `content` text,
+  `avatar` varchar(255) NOT NULL DEFAULT '',
+  `item_pic_url` varchar(255) NOT NULL DEFAULT '',
+  `subtitle` varchar(255) NOT NULL DEFAULT '''',
+  `topic_category_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `price_info` decimal(10,2) unsigned NOT NULL DEFAULT '0.00',
+  `read_count` varchar(255) NOT NULL DEFAULT '0',
+  `scene_pic_url` varchar(255) NOT NULL DEFAULT '',
+  `topic_template_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `topic_tag_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `sort_order` int(11) unsigned NOT NULL DEFAULT '100',
+  `is_show` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  KEY `topic_id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=316 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Records of nideshop_topic
+-- ----------------------------
+BEGIN;
+INSERT INTO `nideshop_topic` VALUES (314, '关爱他成长的每一个足迹', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14943186689221563.png', 'https://yanxuan.nosdn.127.net/14943267735961674.jpg', '专业运动品牌同厂，毛毛虫鞋买二送一', 2, 0.00, '6.4k', 'https://yanxuan.nosdn.127.net/14943267735961674.jpg', 0, 0, 1, 1);
+INSERT INTO `nideshop_topic` VALUES (313, '一次解决5个节日送礼难题', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14942967243991290.png', 'https://yanxuan.nosdn.127.net/14942996754171334.jpg', '这些就是他们想要的礼物清单', 0, 59.90, '7.8k', 'https://yanxuan.nosdn.127.net/14942996754171334.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (300, '秒杀化学洗涤剂的纯天然皂', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14939843011001088.png', 'https://yanxuan.nosdn.127.net/14939843143621089.jpg', '前段时间有朋友跟我抱怨，和婆婆住到一起才发现生活理念有太多不和。别的不提，光是洗...', 1, 0.00, '15.3k', 'https://yanxuan.nosdn.127.net/14939843143621089.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (299, '买过的人都说它是差旅神器', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14938873720850678.png', 'https://yanxuan.nosdn.127.net/14938873919030679.jpg', '许多人经历过旅途中内裤洗晾不便的烦恼，尤其与旅伴同居一室时，晾在卫生间里的内裤更...', 1, 0.00, '28.7k', 'https://yanxuan.nosdn.127.net/14938873919030679.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (295, '他们在严选遇见的新生活', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14937987677390284.png', 'https://yanxuan.nosdn.127.net/14938092956370380.jpg', '多款商品直减中，最高直减400元', 0, 35.80, '36.6k', 'https://yanxuan.nosdn.127.net/14938092956370380.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (294, '这只锅，可以从祖母用到孙辈', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14937214529340142.png', 'https://yanxuan.nosdn.127.net/14937214454750141.jpg', '买100年传世珐琅锅送迷你马卡龙色小锅', 4, 149.00, '108.1k', 'https://yanxuan.nosdn.127.net/14937214454750141.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (291, '舒适新主张', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14933596154560938.png', 'https://yanxuan.nosdn.127.net/14939496197300723.jpg', '如何挑选适合自己的好物？', 0, 29.00, '67.8k', 'https://yanxuan.nosdn.127.net/14939496197300723.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (289, '专业运动袜也可以高性价比', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14932840884890614.png', 'https://yanxuan.nosdn.127.net/14932840600970609.jpg', '越来越多运动人士意识到，运动鞋要购置好的，鞋里的运动袜也不可忽视。专业运动袜帮助...', 1, 0.00, '11.9k', 'https://yanxuan.nosdn.127.net/14932840600970609.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (287, '严选新式样板间', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14931133750100134.png', 'https://yanxuan.nosdn.127.net/14931970965550315.jpg', '一种软装一个家', 3, 29.90, '55.6k', 'https://yanxuan.nosdn.127.net/14931970965550315.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (286, '无“油”无虑的甜蜜酥脆', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14931121505610125.png', 'https://yanxuan.nosdn.127.net/14931121822100127.jpg', '大家都知道，饮食组是严选体重最重的一组，基本上每个新人都能在一个月之内迅速长胖。...', 1, 0.00, '15.6k', 'https://yanxuan.nosdn.127.net/14931121822100127.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (281, '条纹新风尚', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14926859949660827.png', 'https://yanxuan.nosdn.127.net/14926859849200826.jpg', '经典百搭，时尚线条', 3, 29.00, '76.5k', 'https://yanxuan.nosdn.127.net/14926859849200826.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (282, '成就一室笋香', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14927695155801070.png', 'https://yanxuan.nosdn.127.net/14927695046601069.jpg', '三石哥办公室常备小食推荐', 2, 12.00, '40.9k', 'https://yanxuan.nosdn.127.net/14927695046601069.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (283, '孩子成长中少不了的一双鞋', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14927748094971079.png', 'https://yanxuan.nosdn.127.net/14927748974441080.jpg', '说起毛毛虫鞋，好处实在太多了，作为一个2岁孩子的宝妈选品员，按捺不住想告诉大家，...', 1, 0.00, '42.5k', 'https://yanxuan.nosdn.127.net/14927748974441080.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (277, '治愈生活的满怀柔软', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14926748590030593.png', 'https://yanxuan.nosdn.127.net/14926737925770587.jpg', '太鼓抱枕的上架历程，是从失踪开始的。由于表面的绒感，最初它被安排在秋冬季上架。某...', 1, 0.00, '19.6k', 'https://yanxuan.nosdn.127.net/14926737925770587.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (274, '没有软木拖，怎么过夏天', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14925821004620235.png', 'https://yanxuan.nosdn.127.net/14925822213780237.jpg', '刚入四月，杭州的气温就已升高至30度。店庆时买了软木拖的用户，陆续发回评价说，很...', 1, 0.00, '46.4k', 'https://yanxuan.nosdn.127.net/14925822213780237.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (272, '料理也要精细简单', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14925201467400187.png', 'https://yanxuan.nosdn.127.net/14925200530030186.jpg', '享受天然的味道，日子每天都好新鲜', 2, 69.00, '125.6k', 'https://yanxuan.nosdn.127.net/14925200530030186.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (271, '选式新懒人', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14924199159971698.png', 'https://yanxuan.nosdn.127.net/14924199099661697.jpg', '懒出格调，懒出好生活。', 3, 15.00, '57.7k', 'https://yanxuan.nosdn.127.net/14924199099661697.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (268, '米饭好吃的秘诀：会呼吸的锅', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14920712417610604.png', 'https://yanxuan.nosdn.127.net/14920623353130483.jpg', '今年1月份，我们联系到了日本伊贺地区的长谷园，那里有着180年伊贺烧历史的窑厂。...', 1, 0.00, '33.3k', 'https://yanxuan.nosdn.127.net/14920623353130483.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (266, '一条丝巾就能提升时髦度', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14919005600900208.png', 'https://yanxuan.nosdn.127.net/14919007135160213.jpg', '不知道大家对去年G20时，严选与国礼制造商一起推出的《凤凰于飞》等几款丝巾是否还...', 1, 0.00, '35.0k', 'https://yanxuan.nosdn.127.net/14919007135160213.jpg', 0, 0, 0, 1);
+INSERT INTO `nideshop_topic` VALUES (264, '设计师们推荐的应季好物', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14920662001560500.png', 'https://yanxuan.nosdn.127.net/14918201901050274.jpg', '原创设计春款系列上新', 0, 29.90, '77.7k', 'https://yanxuan.nosdn.127.net/14918201901050274.jpg', 0, 0, 0, 1);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for nideshop_topic_category
+-- ----------------------------
+DROP TABLE IF EXISTS `nideshop_topic_category`;
+CREATE TABLE `nideshop_topic_category` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL DEFAULT '',
+  `pic_url` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Records of nideshop_topic_category
+-- ----------------------------
+BEGIN;
+INSERT INTO `nideshop_topic_category` VALUES (1, '严选幕后', 'https://yanxuan.nosdn.127.net/dc1b671ad54e16339f1b26cfeec6a1ea.jpg');
+INSERT INTO `nideshop_topic_category` VALUES (2, '丁磊私物推荐', 'https://yanxuan.nosdn.127.net/1de4da49367dd7c01af1f7a2b23b0237.jpg');
+INSERT INTO `nideshop_topic_category` VALUES (3, '特色系列', 'https://yanxuan.nosdn.127.net/14939888170021096.png');
+INSERT INTO `nideshop_topic_category` VALUES (4, '明星商品', 'https://yanxuan.nosdn.127.net/14939888168151095.png');
+INSERT INTO `nideshop_topic_category` VALUES (5, '严选推荐', 'https://yanxuan.nosdn.127.net/d943675462a06f817d33062d4eb059f5.jpg');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for nideshop_user
+-- ----------------------------
+DROP TABLE IF EXISTS `nideshop_user`;
+CREATE TABLE `nideshop_user` (
+  `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(60) NOT NULL DEFAULT '',
+  `password` varchar(32) NOT NULL DEFAULT '',
+  `gender` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `birthday` int(11) unsigned NOT NULL DEFAULT '0',
+  `register_time` int(11) unsigned NOT NULL DEFAULT '0',
+  `last_login_time` int(11) unsigned NOT NULL DEFAULT '0',
+  `last_login_ip` varchar(255) NOT NULL DEFAULT '',
+  `user_level_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `nickname` varchar(60) NOT NULL,
+  `mobile` varchar(20) NOT NULL,
+  `register_ip` varchar(255) NOT NULL DEFAULT '',
+  `avatar` varchar(255) NOT NULL DEFAULT '',
+  `weixin_openid` varchar(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_name` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Table structure for nideshop_user_coupon
+-- ----------------------------
+DROP TABLE IF EXISTS `nideshop_user_coupon`;
+CREATE TABLE `nideshop_user_coupon` (
+  `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `coupon_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `coupon_number` varchar(20) NOT NULL DEFAULT '',
+  `user_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `used_time` int(10) unsigned NOT NULL DEFAULT '0',
+  `order_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Records of nideshop_user_coupon
+-- ----------------------------
+BEGIN;
+INSERT INTO `nideshop_user_coupon` VALUES (1, 3, '0', 1, 1242142681, 4);
+INSERT INTO `nideshop_user_coupon` VALUES (2, 4, '1000003379', 1, 1242976699, 14);
+INSERT INTO `nideshop_user_coupon` VALUES (3, 4, '1000018450', 0, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (4, 4, '1000023774', 0, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (5, 4, '1000039394', 0, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (6, 4, '1000049305', 0, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (7, 4, '1000052248', 0, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (8, 4, '1000061542', 0, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (9, 4, '1000070278', 0, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (10, 4, '1000080588', 0, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (11, 4, '1000091405', 0, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (24, 3, '0', 1, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (25, 3, '0', 1, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (26, 3, '0', 1, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (27, 3, '0', 1, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (28, 3, '0', 1, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (29, 3, '0', 1, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (30, 3, '0', 1, 0, 0);
+INSERT INTO `nideshop_user_coupon` VALUES (31, 3, '0', 1, 0, 0);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for nideshop_user_level
+-- ----------------------------
+DROP TABLE IF EXISTS `nideshop_user_level`;
+CREATE TABLE `nideshop_user_level` (
+  `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) NOT NULL DEFAULT '',
+  `description` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Records of nideshop_user_level
+-- ----------------------------
+BEGIN;
+INSERT INTO `nideshop_user_level` VALUES (1, '普通用户', '0');
+INSERT INTO `nideshop_user_level` VALUES (2, 'vip', '10000');
+COMMIT;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
 
 -- ----------------------------
 -- Table structure for nideshop_region
@@ -4998,242 +5259,3 @@ INSERT INTO `nideshop_region` VALUES (4042, 399, '葵青区', 3, 0);
 INSERT INTO `nideshop_region` VALUES (4043, 399, '离岛区', 3, 0);
 COMMIT;
 
--- ----------------------------
--- Table structure for nideshop_related_goods
--- ----------------------------
-DROP TABLE IF EXISTS `nideshop_related_goods`;
-CREATE TABLE `nideshop_related_goods` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `goods_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `related_goods_id` int(11) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ----------------------------
--- Table structure for nideshop_search_history
--- ----------------------------
-DROP TABLE IF EXISTS `nideshop_search_history`;
-CREATE TABLE `nideshop_search_history` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `keyword` char(50) NOT NULL,
-  `from` varchar(45) NOT NULL DEFAULT '' COMMENT '搜索来源，如PC、小程序、APP等',
-  `add_time` int(11) NOT NULL DEFAULT '0' COMMENT '搜索时间',
-  `user_id` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4;
-
--- ----------------------------
--- Records of nideshop_search_history
--- ----------------------------
-BEGIN;
-INSERT INTO `nideshop_search_history` VALUES (23, '母亲节', '', 1500564813, '1');
-INSERT INTO `nideshop_search_history` VALUES (24, '日式', '', 1500564816, '1');
-INSERT INTO `nideshop_search_history` VALUES (25, '日式', '', 1500564822, '1');
-INSERT INTO `nideshop_search_history` VALUES (26, '清新', '', 1500564835, '1');
-INSERT INTO `nideshop_search_history` VALUES (27, '日式', '', 1500638161, '1');
-COMMIT;
-
--- ----------------------------
--- Table structure for nideshop_shipper
--- ----------------------------
-DROP TABLE IF EXISTS `nideshop_shipper`;
-CREATE TABLE `nideshop_shipper` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '快递公司名称',
-  `code` varchar(10) NOT NULL DEFAULT '' COMMENT '快递公司代码',
-  `sort_order` int(11) NOT NULL DEFAULT '10' COMMENT '排序',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `nideshop_shipper_id_uindex` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COMMENT='快递公司';
-
--- ----------------------------
--- Records of nideshop_shipper
--- ----------------------------
-BEGIN;
-INSERT INTO `nideshop_shipper` VALUES (1, '顺丰速运', 'SF', 1);
-INSERT INTO `nideshop_shipper` VALUES (2, '百世快递', 'HTKY', 2);
-INSERT INTO `nideshop_shipper` VALUES (3, '中通快递', 'ZTO', 3);
-INSERT INTO `nideshop_shipper` VALUES (4, '申通快递', 'STO', 4);
-INSERT INTO `nideshop_shipper` VALUES (5, '圆通速递', 'YTO', 5);
-INSERT INTO `nideshop_shipper` VALUES (6, '韵达速递', 'YD', 6);
-INSERT INTO `nideshop_shipper` VALUES (7, '邮政快递包裹', 'YZPY', 7);
-INSERT INTO `nideshop_shipper` VALUES (8, 'EMS', 'EMS', 8);
-INSERT INTO `nideshop_shipper` VALUES (9, '天天快递', 'HHTT', 9);
-INSERT INTO `nideshop_shipper` VALUES (10, '京东物流', 'JD', 10);
-INSERT INTO `nideshop_shipper` VALUES (11, '全峰快递', 'QFKD', 11);
-INSERT INTO `nideshop_shipper` VALUES (12, '国通快递', 'GTO', 12);
-INSERT INTO `nideshop_shipper` VALUES (13, '优速快递', 'UC', 13);
-COMMIT;
-
--- ----------------------------
--- Table structure for nideshop_specification
--- ----------------------------
-DROP TABLE IF EXISTS `nideshop_specification`;
-CREATE TABLE `nideshop_specification` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(60) NOT NULL DEFAULT '',
-  `sort_order` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='规格表';
-
--- ----------------------------
--- Records of nideshop_specification
--- ----------------------------
-BEGIN;
-INSERT INTO `nideshop_specification` VALUES (1, '颜色', 1);
-INSERT INTO `nideshop_specification` VALUES (2, '规格', 2);
-COMMIT;
-
--- ----------------------------
--- Table structure for nideshop_topic
--- ----------------------------
-DROP TABLE IF EXISTS `nideshop_topic`;
-CREATE TABLE `nideshop_topic` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) NOT NULL DEFAULT '''''',
-  `content` text,
-  `avatar` varchar(255) NOT NULL DEFAULT '',
-  `item_pic_url` varchar(255) NOT NULL DEFAULT '',
-  `subtitle` varchar(255) NOT NULL DEFAULT '''',
-  `topic_category_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `price_info` decimal(10,2) unsigned NOT NULL DEFAULT '0.00',
-  `read_count` varchar(255) NOT NULL DEFAULT '0',
-  `scene_pic_url` varchar(255) NOT NULL DEFAULT '',
-  `topic_template_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `topic_tag_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `sort_order` int(11) unsigned NOT NULL DEFAULT '100',
-  `is_show` tinyint(1) unsigned NOT NULL DEFAULT '1',
-  KEY `topic_id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=316 DEFAULT CHARSET=utf8mb4;
-
--- ----------------------------
--- Records of nideshop_topic
--- ----------------------------
-BEGIN;
-INSERT INTO `nideshop_topic` VALUES (314, '关爱他成长的每一个足迹', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14943186689221563.png', 'https://yanxuan.nosdn.127.net/14943267735961674.jpg', '专业运动品牌同厂，毛毛虫鞋买二送一', 2, 0.00, '6.4k', 'https://yanxuan.nosdn.127.net/14943267735961674.jpg', 0, 0, 1, 1);
-INSERT INTO `nideshop_topic` VALUES (313, '一次解决5个节日送礼难题', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14942967243991290.png', 'https://yanxuan.nosdn.127.net/14942996754171334.jpg', '这些就是他们想要的礼物清单', 0, 59.90, '7.8k', 'https://yanxuan.nosdn.127.net/14942996754171334.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (300, '秒杀化学洗涤剂的纯天然皂', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14939843011001088.png', 'https://yanxuan.nosdn.127.net/14939843143621089.jpg', '前段时间有朋友跟我抱怨，和婆婆住到一起才发现生活理念有太多不和。别的不提，光是洗...', 1, 0.00, '15.3k', 'https://yanxuan.nosdn.127.net/14939843143621089.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (299, '买过的人都说它是差旅神器', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14938873720850678.png', 'https://yanxuan.nosdn.127.net/14938873919030679.jpg', '许多人经历过旅途中内裤洗晾不便的烦恼，尤其与旅伴同居一室时，晾在卫生间里的内裤更...', 1, 0.00, '28.7k', 'https://yanxuan.nosdn.127.net/14938873919030679.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (295, '他们在严选遇见的新生活', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14937987677390284.png', 'https://yanxuan.nosdn.127.net/14938092956370380.jpg', '多款商品直减中，最高直减400元', 0, 35.80, '36.6k', 'https://yanxuan.nosdn.127.net/14938092956370380.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (294, '这只锅，可以从祖母用到孙辈', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14937214529340142.png', 'https://yanxuan.nosdn.127.net/14937214454750141.jpg', '买100年传世珐琅锅送迷你马卡龙色小锅', 4, 149.00, '108.1k', 'https://yanxuan.nosdn.127.net/14937214454750141.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (291, '舒适新主张', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14933596154560938.png', 'https://yanxuan.nosdn.127.net/14939496197300723.jpg', '如何挑选适合自己的好物？', 0, 29.00, '67.8k', 'https://yanxuan.nosdn.127.net/14939496197300723.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (289, '专业运动袜也可以高性价比', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14932840884890614.png', 'https://yanxuan.nosdn.127.net/14932840600970609.jpg', '越来越多运动人士意识到，运动鞋要购置好的，鞋里的运动袜也不可忽视。专业运动袜帮助...', 1, 0.00, '11.9k', 'https://yanxuan.nosdn.127.net/14932840600970609.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (287, '严选新式样板间', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14931133750100134.png', 'https://yanxuan.nosdn.127.net/14931970965550315.jpg', '一种软装一个家', 3, 29.90, '55.6k', 'https://yanxuan.nosdn.127.net/14931970965550315.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (286, '无“油”无虑的甜蜜酥脆', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14931121505610125.png', 'https://yanxuan.nosdn.127.net/14931121822100127.jpg', '大家都知道，饮食组是严选体重最重的一组，基本上每个新人都能在一个月之内迅速长胖。...', 1, 0.00, '15.6k', 'https://yanxuan.nosdn.127.net/14931121822100127.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (281, '条纹新风尚', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14926859949660827.png', 'https://yanxuan.nosdn.127.net/14926859849200826.jpg', '经典百搭，时尚线条', 3, 29.00, '76.5k', 'https://yanxuan.nosdn.127.net/14926859849200826.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (282, '成就一室笋香', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14927695155801070.png', 'https://yanxuan.nosdn.127.net/14927695046601069.jpg', '三石哥办公室常备小食推荐', 2, 12.00, '40.9k', 'https://yanxuan.nosdn.127.net/14927695046601069.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (283, '孩子成长中少不了的一双鞋', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14927748094971079.png', 'https://yanxuan.nosdn.127.net/14927748974441080.jpg', '说起毛毛虫鞋，好处实在太多了，作为一个2岁孩子的宝妈选品员，按捺不住想告诉大家，...', 1, 0.00, '42.5k', 'https://yanxuan.nosdn.127.net/14927748974441080.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (277, '治愈生活的满怀柔软', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14926748590030593.png', 'https://yanxuan.nosdn.127.net/14926737925770587.jpg', '太鼓抱枕的上架历程，是从失踪开始的。由于表面的绒感，最初它被安排在秋冬季上架。某...', 1, 0.00, '19.6k', 'https://yanxuan.nosdn.127.net/14926737925770587.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (274, '没有软木拖，怎么过夏天', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14925821004620235.png', 'https://yanxuan.nosdn.127.net/14925822213780237.jpg', '刚入四月，杭州的气温就已升高至30度。店庆时买了软木拖的用户，陆续发回评价说，很...', 1, 0.00, '46.4k', 'https://yanxuan.nosdn.127.net/14925822213780237.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (272, '料理也要精细简单', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14925201467400187.png', 'https://yanxuan.nosdn.127.net/14925200530030186.jpg', '享受天然的味道，日子每天都好新鲜', 2, 69.00, '125.6k', 'https://yanxuan.nosdn.127.net/14925200530030186.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (271, '选式新懒人', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14924199159971698.png', 'https://yanxuan.nosdn.127.net/14924199099661697.jpg', '懒出格调，懒出好生活。', 3, 15.00, '57.7k', 'https://yanxuan.nosdn.127.net/14924199099661697.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (268, '米饭好吃的秘诀：会呼吸的锅', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14920712417610604.png', 'https://yanxuan.nosdn.127.net/14920623353130483.jpg', '今年1月份，我们联系到了日本伊贺地区的长谷园，那里有着180年伊贺烧历史的窑厂。...', 1, 0.00, '33.3k', 'https://yanxuan.nosdn.127.net/14920623353130483.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (266, '一条丝巾就能提升时髦度', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14919005600900208.png', 'https://yanxuan.nosdn.127.net/14919007135160213.jpg', '不知道大家对去年G20时，严选与国礼制造商一起推出的《凤凰于飞》等几款丝巾是否还...', 1, 0.00, '35.0k', 'https://yanxuan.nosdn.127.net/14919007135160213.jpg', 0, 0, 0, 1);
-INSERT INTO `nideshop_topic` VALUES (264, '设计师们推荐的应季好物', '<img src=\"//yanxuan.nosdn.127.net/75c55a13fde5eb2bc2dd6813b4c565cc.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/e27e1de2b271a28a21c10213b9df7e95.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/9d413d1d28f753cb19096b533d53418d.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/64b0f2f350969e9818a3b6c43c217325.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/a668e6ae7f1fa45565c1eac221787570.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/0d4004e19728f2707f08f4be79bbc774.jpg\">\n    <img src=\"//yanxuan.nosdn.127.net/79ee021bbe97de7ecda691de6787241f.jpg\">', 'https://yanxuan.nosdn.127.net/14920662001560500.png', 'https://yanxuan.nosdn.127.net/14918201901050274.jpg', '原创设计春款系列上新', 0, 29.90, '77.7k', 'https://yanxuan.nosdn.127.net/14918201901050274.jpg', 0, 0, 0, 1);
-COMMIT;
-
--- ----------------------------
--- Table structure for nideshop_topic_category
--- ----------------------------
-DROP TABLE IF EXISTS `nideshop_topic_category`;
-CREATE TABLE `nideshop_topic_category` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) NOT NULL DEFAULT '',
-  `pic_url` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
-
--- ----------------------------
--- Records of nideshop_topic_category
--- ----------------------------
-BEGIN;
-INSERT INTO `nideshop_topic_category` VALUES (1, '严选幕后', 'https://yanxuan.nosdn.127.net/dc1b671ad54e16339f1b26cfeec6a1ea.jpg');
-INSERT INTO `nideshop_topic_category` VALUES (2, '丁磊私物推荐', 'https://yanxuan.nosdn.127.net/1de4da49367dd7c01af1f7a2b23b0237.jpg');
-INSERT INTO `nideshop_topic_category` VALUES (3, '特色系列', 'https://yanxuan.nosdn.127.net/14939888170021096.png');
-INSERT INTO `nideshop_topic_category` VALUES (4, '明星商品', 'https://yanxuan.nosdn.127.net/14939888168151095.png');
-INSERT INTO `nideshop_topic_category` VALUES (5, '严选推荐', 'https://yanxuan.nosdn.127.net/d943675462a06f817d33062d4eb059f5.jpg');
-COMMIT;
-
--- ----------------------------
--- Table structure for nideshop_user
--- ----------------------------
-DROP TABLE IF EXISTS `nideshop_user`;
-CREATE TABLE `nideshop_user` (
-  `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-  `username` varchar(60) NOT NULL DEFAULT '',
-  `password` varchar(32) NOT NULL DEFAULT '',
-  `gender` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `birthday` int(11) unsigned NOT NULL DEFAULT '0',
-  `register_time` int(11) unsigned NOT NULL DEFAULT '0',
-  `last_login_time` int(11) unsigned NOT NULL DEFAULT '0',
-  `last_login_ip` varchar(255) NOT NULL DEFAULT '',
-  `user_level_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `nickname` varchar(60) NOT NULL,
-  `mobile` varchar(20) NOT NULL,
-  `register_ip` varchar(255) NOT NULL DEFAULT '',
-  `avatar` varchar(255) NOT NULL DEFAULT '',
-  `weixin_openid` varchar(50) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `user_name` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ----------------------------
--- Table structure for nideshop_user_coupon
--- ----------------------------
-DROP TABLE IF EXISTS `nideshop_user_coupon`;
-CREATE TABLE `nideshop_user_coupon` (
-  `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-  `coupon_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `coupon_number` varchar(20) NOT NULL DEFAULT '',
-  `user_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `used_time` int(10) unsigned NOT NULL DEFAULT '0',
-  `order_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4;
-
--- ----------------------------
--- Records of nideshop_user_coupon
--- ----------------------------
-BEGIN;
-INSERT INTO `nideshop_user_coupon` VALUES (1, 3, '0', 1, 1242142681, 4);
-INSERT INTO `nideshop_user_coupon` VALUES (2, 4, '1000003379', 1, 1242976699, 14);
-INSERT INTO `nideshop_user_coupon` VALUES (3, 4, '1000018450', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (4, 4, '1000023774', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (5, 4, '1000039394', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (6, 4, '1000049305', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (7, 4, '1000052248', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (8, 4, '1000061542', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (9, 4, '1000070278', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (10, 4, '1000080588', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (11, 4, '1000091405', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (24, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (25, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (26, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (27, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (28, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (29, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (30, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (31, 3, '0', 1, 0, 0);
-COMMIT;
-
--- ----------------------------
--- Table structure for nideshop_user_level
--- ----------------------------
-DROP TABLE IF EXISTS `nideshop_user_level`;
-CREATE TABLE `nideshop_user_level` (
-  `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) NOT NULL DEFAULT '',
-  `description` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
-
--- ----------------------------
--- Records of nideshop_user_level
--- ----------------------------
-BEGIN;
-INSERT INTO `nideshop_user_level` VALUES (1, '普通用户', '0');
-INSERT INTO `nideshop_user_level` VALUES (2, 'vip', '10000');
-COMMIT;
-
-SET FOREIGN_KEY_CHECKS = 1;

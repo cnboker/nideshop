@@ -2,6 +2,8 @@
 module.exports = {
   route_on: true,
   default_module: 'api',
+  deposit: 200, // 押金200
+  lateFee: 0.5, // 滞纳金每天5毛
   weixin: {
     appid: 'wxf28553cb86b1871b', // 小程序 appid
     secret: 'b3f47a8759245582c69dc5a0c3f3a7a7', // 小程序密钥

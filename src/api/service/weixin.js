@@ -159,6 +159,8 @@ module.exports = class extends think.Service {
 
     const notifyObj = {};
     let sign = '';
+    // eslint-disable-next-line no-console
+    console.log('notifyData', notifyData);
     for (const key of Object.keys(notifyData)) {
       if (key !== 'sign') {
         notifyObj[key] = notifyData[key][0];
@@ -173,6 +175,7 @@ module.exports = class extends think.Service {
     if (think.isEmpty(sign) || signString !== sign) {
       return false;
     }
+
     return notifyObj;
   }
 };

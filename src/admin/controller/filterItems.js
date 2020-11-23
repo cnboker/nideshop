@@ -41,7 +41,6 @@ export function filterItems(filter) {
         // eslint-disable-next-line no-undef
         return `${key} in (${value})`;
       }
-     
       // eslint-disable-next-line no-undef
       return `${key} = ${value}`;
       // only the items matching all filters functions are in (AND logic) return

@@ -49,6 +49,11 @@ module.exports = class extends Base {
       ? 1
       : 0;
     delete values.id;
+
+    var url = values.primary_pic_url;
+    var pos = url.lastIndexOf('/');
+    values.list_pic_url = `${url.slice(0, pos)}/thumbnail${url.slice(pos)}`;
+
     await model.add(values);
     return this.simpleRest(values);
   }
@@ -56,7 +61,11 @@ module.exports = class extends Base {
   async putAction() {
     const id = this.get('id');
     const values = this.post();
+    // eslint-disable-next-line no-console
     console.log('values', values);
+    var url = values.primary_pic_url;
+    var pos = url.lastIndexOf('/');
+    values.list_pic_url = `${url.slice(0, pos)}/thumbnail${url.slice(pos)}`;
     const model = this.model('goods');
     if (id > 0) {
       await model

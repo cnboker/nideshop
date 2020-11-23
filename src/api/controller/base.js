@@ -21,9 +21,17 @@ module.exports = class extends think.Controller {
    * @returns {Number}
    */
   getTime() {
-    return parseInt(Date.now());
+    return parseInt(Date.now() / 1000);
   }
 
+  addHour(hours) {
+    // eslint-disable-next-line no-extend-native
+    Date.prototype.addHours = function(h) {
+      this.setHours(this.getHours() + h);
+      return this;
+    };
+    return parseInt((new Date().addHours(hours)).getTime() / 1000);
+  }
   /**
    * 获取当前登录用户的id
    * @returns {*}

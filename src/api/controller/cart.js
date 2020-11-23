@@ -1,4 +1,4 @@
-const Base = require('./base.js');
+const Base = require('./orderBase.js');
 
 module.exports = class extends Base {
   /**
@@ -6,7 +6,13 @@ module.exports = class extends Base {
    * @returns {Promise.<{cartList: *, cartTotal: {goodsCount: number, goodsAmount: number, checkedGoodsCount: number, checkedGoodsAmount: number}}>}
    */
   async getCart() {
-    const cartList = await this.model('cart').where({user_id: this.getLoginUserId(), session_id: 1}).select();
+    const cartList = await this
+      .model('cart')
+      .where({
+        user_id: this.getLoginUserId(),
+        session_id: 1
+      })
+      .select();
     // 获取购物车统计信息
     let goodsCount = 0;
     let goodsAmount = 0.00;
@@ -21,7 +27,9 @@ module.exports = class extends Base {
       }
 
       // 查找商品的图片
-      cartItem.list_pic_url = await this.model('goods').where({id: cartItem.goods_id}).getField('list_pic_url', true);
+      cartItem.list_pic_url = `http://${this.ctx.host}${cartItem.list_pic_url}`;
+      // cartItem.list_pic_url = await this.model('goods').where({id:
+      // cartItem.goods_id}).getField('list_pic_url', true);
     }
 
     return {
@@ -49,64 +57,42 @@ module.exports = class extends Base {
    */
   async addAction() {
     const goodsId = this.post('goodsId');
-    const productId = this.post('productId');
     const number = this.post('number');
 
     // 判断商品是否可以购买
-    const goodsInfo = await this.model('goods').where({id: goodsId}).find();
-    if (think.isEmpty(goodsInfo) || goodsInfo.is_delete === 1) {
+    const goodsInfo = await this
+      .model('goods')
+      .where({id: goodsId})
+      .find();
+    if (think.isEmpty(goodsInfo) || goodsInfo.stock === 0) {
       return this.fail(400, '商品已下架');
     }
-
-    // 取得规格的信息,判断规格库存
-    const productInfo = await this.model('product').where({goods_id: goodsId, id: productId}).find();
-    if (think.isEmpty(productInfo) || productInfo.goods_number < number) {
-      return this.fail(400, '库存不足');
-    }
-
+    const userId = this.getLoginUserId();
     // 判断购物车中是否存在此规格商品
-    const cartInfo = await this.model('cart').where({goods_id: goodsId, product_id: productId}).find();
+    const cartInfo = await this
+      .model('cart')
+      .where({goods_id: goodsId, user_id: userId})
+      .find();
+    // eslint-disable-next-line no-console
+    console.log('cartInfo', cartInfo);
     if (think.isEmpty(cartInfo)) {
-      // 添加操作
-
-      // 添加规格名和值
-      let goodsSepcifitionValue = [];
-      if (!think.isEmpty(productInfo.goods_specification_ids)) {
-        goodsSepcifitionValue = await this.model('goods_specification').where({
-          goods_id: goodsId,
-          id: {'in': productInfo.goods_specification_ids.split('_')}
-        }).getField('value');
-      }
-
       // 添加到购物车
       const cartData = {
         goods_id: goodsId,
-        product_id: productId,
-        goods_sn: productInfo.goods_sn,
         goods_name: goodsInfo.name,
         list_pic_url: goodsInfo.list_pic_url,
         number: number,
         session_id: 1,
         user_id: this.getLoginUserId(),
-        retail_price: productInfo.retail_price,
-        market_price: productInfo.retail_price,
-        goods_specifition_name_value: goodsSepcifitionValue.join(';'),
-        goods_specifition_ids: productInfo.goods_specification_ids,
         checked: 1
       };
 
-      await this.model('cart').thenAdd(cartData, {product_id: productId});
+      await this
+        .model('cart')
+        .add(cartData);
     } else {
-      // 如果已经存在购物车中，则数量增加
-      if (productInfo.goods_number < (number + cartInfo.number)) {
-        return this.fail(400, '库存不足');
-      }
-
-      await this.model('cart').where({
-        goods_id: goodsId,
-        product_id: productId,
-        id: cartInfo.id
-      }).increment('number', number);
+      // await this.model('cart').where({   goods_id: goodsId,   product_id:
+      // productId,   id: cartInfo.id }).increment('number', number);
     }
     return this.success(await this.getCart());
   }
@@ -119,33 +105,51 @@ module.exports = class extends Base {
     const number = parseInt(this.post('number')); // 不是
 
     // 取得规格的信息,判断规格库存
-    const productInfo = await this.model('product').where({goods_id: goodsId, id: productId}).find();
+    const productInfo = await this
+      .model('product')
+      .where({goods_id: goodsId, id: productId})
+      .find();
     if (think.isEmpty(productInfo) || productInfo.goods_number < number) {
       return this.fail(400, '库存不足');
     }
 
     // 判断是否已经存在product_id购物车商品
-    const cartInfo = await this.model('cart').where({id: id}).find();
+    const cartInfo = await this
+      .model('cart')
+      .where({id: id})
+      .find();
     // 只是更新number
     if (cartInfo.product_id === productId) {
-      await this.model('cart').where({id: id}).update({
-        number: number
-      });
+      await this
+        .model('cart')
+        .where({id: id})
+        .update({number: number});
 
       return this.success(await this.getCart());
     }
 
-    const newCartInfo = await this.model('cart').where({goods_id: goodsId, product_id: productId}).find();
+    const newCartInfo = await this
+      .model('cart')
+      .where({goods_id: goodsId, product_id: productId})
+      .find();
     if (think.isEmpty(newCartInfo)) {
-      // 直接更新原来的cartInfo
-
-      // 添加规格名和值
+      // 直接更新原来的cartInfo 添加规格名和值
       let goodsSepcifition = [];
       if (!think.isEmpty(productInfo.goods_specification_ids)) {
-        goodsSepcifition = await this.model('goods_specification').field(['nideshop_goods_specification.*', 'nideshop_specification.name']).join('nideshop_specification ON nideshop_specification.id=nideshop_goods_specification.specification_id').where({
-          'nideshop_goods_specification.goods_id': goodsId,
-          'nideshop_goods_specification.id': {'in': productInfo.goods_specification_ids.split('_')}
-        }).select();
+        goodsSepcifition = await this
+          .model('goods_specification')
+          .field(['nideshop_goods_specification.*', 'nideshop_specification.name'])
+          .join('nideshop_specification ON nideshop_specification.id=nideshop_goods_specification' +
+              '.specification_id')
+          .where({
+            'nideshop_goods_specification.goods_id': goodsId,
+            'nideshop_goods_specification.id': {
+              'in': productInfo
+                .goods_specification_ids
+                .split('_')
+            }
+          })
+          .select();
       }
 
       const cartData = {
@@ -158,7 +162,10 @@ module.exports = class extends Base {
         goods_sn: productInfo.goods_sn
       };
 
-      await this.model('cart').where({id: id}).update(cartData);
+      await this
+        .model('cart')
+        .where({id: id})
+        .update(cartData);
     } else {
       // 合并购物车已有的product信息，删除已有的数据
       const newNumber = number + newCartInfo.number;
@@ -167,7 +174,10 @@ module.exports = class extends Base {
         return this.fail(400, '库存不足');
       }
 
-      await this.model('cart').where({id: newCartInfo.id}).delete();
+      await this
+        .model('cart')
+        .where({id: newCartInfo.id})
+        .delete();
 
       const cartData = {
         number: newNumber,
@@ -179,7 +189,10 @@ module.exports = class extends Base {
         goods_sn: productInfo.goods_sn
       };
 
-      await this.model('cart').where({id: id}).update(cartData);
+      await this
+        .model('cart')
+        .where({id: id})
+        .update(cartData);
     }
 
     return this.success(await this.getCart());
@@ -187,7 +200,9 @@ module.exports = class extends Base {
 
   // 是否选择商品，如果已经选择，则取消选择，批量操作
   async checkedAction() {
-    let productId = this.post('productIds').toString();
+    let productId = this
+      .post('productIds')
+      .toString();
     const isChecked = this.post('isChecked');
 
     if (think.isEmpty(productId)) {
@@ -195,7 +210,14 @@ module.exports = class extends Base {
     }
 
     productId = productId.split(',');
-    await this.model('cart').where({product_id: {'in': productId}}).update({checked: parseInt(isChecked)});
+    await this
+      .model('cart')
+      .where({
+        product_id: {
+          'in': productId
+        }
+      })
+      .update({checked: parseInt(isChecked)});
 
     return this.success(await this.getCart());
   }
@@ -209,7 +231,14 @@ module.exports = class extends Base {
 
     productId = productId.split(',');
 
-    await this.model('cart').where({product_id: {'in': productId}}).delete();
+    await this
+      .model('cart')
+      .where({
+        product_id: {
+          'in': productId
+        }
+      })
+      .delete();
 
     return this.success(await this.getCart());
   }
@@ -229,21 +258,58 @@ module.exports = class extends Base {
    * @returns {Promise.<void>}
    */
   async checkoutAction() {
-    const addressId = this.get('addressId'); // 收货地址id
-    // const couponId = this.get('couponId'); // 使用的优惠券id
-
+    const addressId = +this.get('addressId'); // 收货地址id
+    // eslint-disable-next-line no-unused-vars
+    const couponId = this.get('couponId'); // 使用的优惠券id
+    const cardId = this.get('cardId'); // 获取卡id
     // 选择的收货地址
     let checkedAddress = null;
-    if (addressId) {
-      checkedAddress = await this.model('address').where({is_default: 1, user_id: this.getLoginUserId()}).find();
+    if (addressId === 0) {
+      checkedAddress = await this
+        .model('address')
+        .where({
+          is_default: 1,
+          user_id: this.getLoginUserId()
+        })
+        .find();
     } else {
-      checkedAddress = await this.model('address').where({id: addressId, user_id: this.getLoginUserId()}).find();
+      checkedAddress = await this
+        .model('address')
+        .where({
+          id: addressId,
+          user_id: this.getLoginUserId()
+        })
+        .find();
+    }
+    // 获取我的卡信息
+    let mycard = await this.getMycard();
+    console.log('mycard', mycard);
+    // 没有开卡会员
+    if (!mycard) {
+      if (cardId > 0) {
+        const card = await this
+          .model('usercard')
+          .where({id: cardId})
+          .find();
+        mycard = {
+          ...card,
+          id: 0,
+          cardId: card.id
+        };
+        console.log('mycard', mycard);
+      }
     }
 
     if (!think.isEmpty(checkedAddress)) {
-      checkedAddress.province_name = await this.model('region').getRegionName(checkedAddress.province_id);
-      checkedAddress.city_name = await this.model('region').getRegionName(checkedAddress.city_id);
-      checkedAddress.district_name = await this.model('region').getRegionName(checkedAddress.district_id);
+      checkedAddress.province_name = await this
+        .model('region')
+        .getRegionName(checkedAddress.province_id);
+      checkedAddress.city_name = await this
+        .model('region')
+        .getRegionName(checkedAddress.city_id);
+      checkedAddress.district_name = await this
+        .model('region')
+        .getRegionName(checkedAddress.district_id);
       checkedAddress.full_region = checkedAddress.province_name + checkedAddress.city_name + checkedAddress.district_name;
     }
 
@@ -252,12 +318,14 @@ module.exports = class extends Base {
 
     // 获取要购买的商品
     const cartData = await this.getCart();
-    const checkedGoodsList = cartData.cartList.filter(function(v) {
-      return v.checked === 1;
-    });
+    const checkedGoodsList = cartData
+      .cartList
+      .filter((v) => v.checked === 1);
 
     // 获取可用的优惠券信息，功能还示实现
-    const couponList = await this.model('user_coupon').select();
+    const couponList = await this
+      .model('user_coupon')
+      .select();
     const couponPrice = 0.00; // 使用优惠券减免的金额
 
     // 计算订单的费用
@@ -274,7 +342,9 @@ module.exports = class extends Base {
       checkedGoodsList: checkedGoodsList,
       goodsTotalPrice: goodsTotalPrice,
       orderTotalPrice: orderTotalPrice,
-      actualPrice: actualPrice
+      actualPrice: actualPrice,
+      // cardId=0说明用户名还没有开卡，这里返回{},cardId>0则到mycard表查找有无可用卡记录，有则返回，没有则创建一个新的未付款mycard记录
+      checkedMycard: mycard
     });
   }
 };

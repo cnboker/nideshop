@@ -14,10 +14,14 @@ module.exports = class extends Base {
     if (think.isEmpty(productFile)) {
       return this.fail('保存失败');
     }
-    const dir = '/www/static/upload/product/';
+
+    // const yyyymm = this.getYYYYMM();
+    const dir = `/www/static/upload/images/`;
+
     this.createDir(think.ROOT_PATH + dir);
     this.createDir(think.ROOT_PATH + dir + '/thumbnail');
     const filename = this.ctx.header['filename'];
+
     const is = fs.createReadStream(productFile.path);
     const phdir = think.ROOT_PATH + dir + filename;
     const os = fs.createWriteStream(phdir);
