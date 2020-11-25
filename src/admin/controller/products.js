@@ -6,12 +6,10 @@ module.exports = class extends Base {
    * @return {Promise} []
    */
   async indexAction() {
-    const {page, size, filter, sort} = this.queryParams();
-    // eslint-disable-next-line no-console
-    console.log('params=', page, size, filter, sort);
+    const {page, size, sqlToken, sort} = this.queryParams();
     const model = this.model('goods');
     const data = await model
-      .where(filter)
+      .where(sqlToken.replace('sell_volume', 'volume').toWhereSQL())
       .order(sort)
       .page(page, size)
       .countSelect();

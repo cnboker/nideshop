@@ -27,7 +27,7 @@ module.exports = class extends Base {
       }
 
       // 查找商品的图片
-      cartItem.list_pic_url = `http://${this.ctx.host}${cartItem.list_pic_url}`;
+      cartItem.list_pic_url = `${cartItem.list_pic_url}`;
       // cartItem.list_pic_url = await this.model('goods').where({id:
       // cartItem.goods_id}).getField('list_pic_url', true);
     }
@@ -283,7 +283,7 @@ module.exports = class extends Base {
     }
     // 获取我的卡信息
     let mycard = await this.getMycard();
-    console.log('mycard', mycard);
+    //  console.log('mycard', mycard);
     // 没有开卡会员
     if (!mycard) {
       if (cardId > 0) {
@@ -296,7 +296,7 @@ module.exports = class extends Base {
           id: 0,
           cardId: card.id
         };
-        console.log('mycard', mycard);
+        // console.log('mycard', mycard);
       }
     }
 
@@ -344,7 +344,7 @@ module.exports = class extends Base {
       orderTotalPrice: orderTotalPrice,
       actualPrice: actualPrice,
       // cardId=0说明用户名还没有开卡，这里返回{},cardId>0则到mycard表查找有无可用卡记录，有则返回，没有则创建一个新的未付款mycard记录
-      checkedMycard: mycard
+      checkedMycard: mycard || {}
     });
   }
 };

@@ -21,27 +21,16 @@ module.exports = class extends think.Controller {
     const params = parseQueryString(this.ctx.req.queryString);
 
     // eslint-disable-next-line no-console
-    console.log('this.ctx.req.params', params, this.ctx.req.queryString);
+    // console.log('this.ctx.req.params', params, this.ctx.req.queryString);
     if (params) {
       if (params.filter) {
-        const {filter} = params;
-        Object
-          .keys(filter)
-          .map(key => {
-            const kv = this.rewriteParams(key, filter[key]);
-            if (kv) {
-              delete filter[key];
-              params.filter = {
-                ...kv,
-                ...filter
-              };
-            }
-          });
-
-        params.filter = filterItems(params.filter).join(' and ');
+        const {whereSQL, sqlToken} = filterItems(params.filter);
+        params.whereSQL = whereSQL.join(' and ');
+        params.sqlToken = sqlToken;
+         // eslint-disable-next-line no-console
+        console.log('sqlToken', sqlToken);
       }
-      // eslint-disable-next-line no-console
-      console.log('this.ctx.req.params', params, this.ctx.req.url);
+     
       // eslint-disable-next-line one-var
       let size = 0;
       // eslint-disable-next-line prefer-const
@@ -59,13 +48,6 @@ module.exports = class extends think.Controller {
     }
   }
 
-  // rewrite params
-  rewriteParams() {
-    // eslint-disable-next-line no-console
-    console.log('base rewriteParents');
-    return null;
-  }
-
   queryParams() {
     const params = this.ctx.req.params;
     return {
@@ -76,7 +58,8 @@ module.exports = class extends think.Controller {
           .sort
           .join(' ')
         : null,
-      filter: params.filter
+      whereSQL: params.whereSQL,
+      sqlToken: params.sqlToken
     };
   }
 
@@ -100,5 +83,14 @@ module.exports = class extends think.Controller {
     var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
     var yyyy = today.getFullYear();
     return yyyy + mm;
+  }
+
+  /**
+   * 获取时间戳
+   * @returns {Number}
+   */
+  getTime(date) {
+    var d = date || Date.now();
+    return parseInt(d / 1000);
   }
 };

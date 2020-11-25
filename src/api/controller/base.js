@@ -1,3 +1,5 @@
+const moment = require('moment');
+var region = null;
 module.exports = class extends think.Controller {
   async __before() {
     // 根据token值获取用户id
@@ -24,6 +26,14 @@ module.exports = class extends think.Controller {
     return parseInt(Date.now() / 1000);
   }
 
+  toYYYYMMDDHHMM(time) {
+    return time > 0
+      ? moment
+        .unix(time)
+        .format('YYYY-MM-DD HH:mm')
+      : 0;
+  };
+
   addHour(hours) {
     // eslint-disable-next-line no-extend-native
     Date.prototype.addHours = function(h) {
@@ -38,5 +48,23 @@ module.exports = class extends think.Controller {
    */
   getLoginUserId() {
     return this.ctx.state.userId;
+  }
+
+  async getAddress(province, city, district) {
+    if (!region) {
+      region = await this
+        .model('region')
+        .select();
+    }
+    var p = region
+      .find(x => x.id === province)
+      .name;
+    var c = region
+      .find(x => x.id === city)
+      .name;
+    var d = region
+      .find(x => x.id === district)
+      .name;
+    return p + c + d;
   }
 };

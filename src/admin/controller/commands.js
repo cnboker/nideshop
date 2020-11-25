@@ -1,29 +1,28 @@
 const Base = require('./base.js');
 
+const orderStatus = {
+  ordered: 0,
+  delivered: 1,
+  cancelled: 2
+};
 // order
 module.exports = class extends Base {
-  rewriteParams(key, value) {
-    if (key === 'status') {
-      let v = 0;
-      if (value === 'ordered') v = 0;
-      if (value === 'delivered') v = 1;
-      if (value === 'cancelled') v = 2;
-      return {status: v};
-    }
-    if (key === 'date') {
-      return {'add_time': value};
-    }
-  }
   /**
    * index action
    * @return {Promise} []
    */
   async indexAction() {
-    const {page, size, sort, filter} = this.queryParams();
+    const {page, size, sort, sqlToken} = this.queryParams();
+    const whereSQL = sqlToken
+      .replace('date', 'add_time')
+      .replace('customer_id', 'add_time')
+      .rewrite('status', (value) => {
+        return orderStatus[value];
+      }).toWhereSQL();
 
     const model = this.model('command');
     const data = await model
-      .where(filter)
+      .where(whereSQL)
       .order(sort)
       .page(page, size)
       .countSelect();

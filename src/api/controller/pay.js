@@ -44,10 +44,15 @@ module.exports = class extends Base {
 
   // 获取卡订单列表
   async listAction() {
+    // eslint-disable-next-line camelcase
+    const pay_status = this.get('status') === 'pending'
+      ? 0
+      : 1;
     const orderList = await this
       .model('payment')
       .where({
-        user_id: this.getLoginUserId()
+        user_id: this.getLoginUserId(),
+        pay_status
       })
       .page(1, 10)
       .countSelect();

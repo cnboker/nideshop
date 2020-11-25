@@ -71,9 +71,9 @@ CREATE TABLE `nideshop_address` (
 -- ----------------------------
 -- Records of nideshop_address
 -- ----------------------------
-BEGIN;
-INSERT INTO `nideshop_address` VALUES (3, '小明', 1, 1, 20, 233, 2414, '民族大道1号', '13800008888', 1);
-COMMIT;
+-- BEGIN;
+-- INSERT INTO `nideshop_address` VALUES (3, '小明', 1, 1, 20, 233, 2414, '民族大道1号', '13800008888', 1);
+-- COMMIT;
 
 -- ----------------------------
 -- Table structure for nideshop_admin
@@ -566,6 +566,7 @@ CREATE TABLE `nideshop_goods` (
   `publisher` varchar(128),
   `publishdate` int(10) unsigned ,
   `stock_location` varchar(128),
+  `volume` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT '周转量',
   PRIMARY KEY (`id`),
   KEY `goods_sn` (`goods_sn`),
   KEY `cat_id` (`category_id`),
@@ -575,7 +576,14 @@ CREATE TABLE `nideshop_goods` (
 
 LOCK TABLES `nideshop_goods` WRITE;
 /*!40000 ALTER TABLE `nideshop_goods` DISABLE KEYS */;
-INSERT INTO `nideshop_goods` VALUES (1,1,'1021000','How Big Are Your Worries Little Bear',0,100,'','','Little Bear is a worrier. He worries about everything! But with Mama Bear’s help, he soon learns his worries are not so big after all.Through this engaging and beautifully illustrated story, children will learn that everyday worries and fears can be overcome. It just takes a willingness to share with a helpful listener, and an understanding that making mistakes is how we learn.',1,0,7,0,0,0.00,0.00,1,'本','/static/upload/images/1605854939304.jpg','/static/upload/images/thumbnail/1605854939304.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100000','Jayneen Sanders','',0,''),(2,1,'1021003','Hey Warrior!',0,100,'','','A fantastic book to help children understand what actually happens in their brain when they experience anxiety. Kids can do amazing things with the right information. Understanding why anxiety feels the way it does, and where the physical symptoms come from, is a powerful step in turning anxiety around. This book is an amazing resource for kids 5 years and above who feel anxious and overwhelmed by those feelings.',1,0,7,0,0,0.00,0.00,1,'本','/static/upload/images/1605854735547.jpg','/static/upload/images/thumbnail/1605854735547.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100001','scott','',0,''),(3,2,'1021004','The Huge Bag of Worries',0,100,'','','Wherever Jenny goes, her worries follow her — in a big blue bag. They are there when she goes swimming, when she is watching TV, and even when she is in the lavatory. Jenny decides they will have to go. But who can help her? A great book to use with anxious children as it helps sort worries through and make them seem more manageable. It emphasizes that we all have worries and what to do about them.',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605854963252.jpg','/static/upload/images/thumbnail/1605854963252.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,1,'100002','Karen Young','',0,''),(4,2,'1021005','When My Worries Get too Big',0,100,'','','More than any other issue, \'losing control\' can cause major problems for children. Through the irresistible character of Nicholas, this book gives young children an opportunity to explore with parents or teachers their own feelings as they react to events in their daily lives while learning some useful relaxation techniques. Children who use the simple strategies presented in this charming book, illustrated by the author, will find themselves relaxed and ready to work or play.',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605854990382.jpg','/static/upload/images/thumbnail/1605854990382.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,1,'100003','Virginia Ironside','',0,''),(5,3,'1021006','What to Do When You Worry Too Much',0,100,'','','\"What to Do When You Worry Too Much\" is an interactive self-help book designed to guide 6-12 year olds and their parents through the cognitive-behavioral techniques most often used in the treatment of generalized anxiety. Engaging, encouraging, and easy to follow, this book educates, motivates, and em',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605854976168.jpg','/static/upload/images/thumbnail/1605854976168.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100004','Kari Dunn Buron','',0,''),(6,3,'1021007','Wilma Jean the Worry Machine',0,100,'','','This book, suitable for younger children, embraces life\'s happy accidents, the mistakes and mess-ups that can lead to self-discovery. Todd Parr brings a timely theme to life with his signature bold, kid-friendly illustrations and a passion for making readers feel good about themselves, encouraging them to try new things, experiment, and dare to explore new paths.',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605855016901.jpg','/static/upload/images/thumbnail/1605855016901.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100005','Dawn Huebner','',0,''),(7,4,'1021008','David and the Worry Beast',0,100,'','','Everyone feels fear, worry and apprehension from time to time, but when these feelings prevent a person from doing what he/she wants and/or needs to do, anxiety becomes a disability. This fun and humorous book addresses the problem of anxiety in a way that relates to children of all ages. It offers creative strategies for parents and teachers to use that can lessen the severity of anxiety. The goal of the bo',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605854607147.jpg','/static/upload/images/thumbnail/1605854607147.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100006','Todd Parr','',0,''),(8,4,'1021009','When Worry Takes Hold',0,100,'','','David could not stop thinking about the basket he had missed at the end of the big game. He was worried that he might do it again. He was worried that his team mates would be angry with him. He was worried that his parents would not be proud of him. He was also worried about an upcoming math test. In fact, David was worried a lot. \" Luckily, David finally confided in his parents and school nurse, both of whom gave him support and techniques for controlling the \"worry beast\" within him.',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605855003875.jpg','/static/upload/images/thumbnail/1605855003875.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100007','Julia Cook','',0,'');
+INSERT INTO `nideshop_goods` VALUES (1,1,'1021000','How Big Are Your Worries Little Bear',0,100,'','','Little Bear is a worrier. He worries about everything! But with Mama Bear’s help, he soon learns his worries are not so big after all.Through this engaging and beautifully illustrated story, children will learn that everyday worries and fears can be overcome. It just takes a willingness to share with a helpful listener, and an understanding that making mistakes is how we learn.',1,0,7,0,0,0.00,0.00,1,'本','/static/upload/images/1605854939304.jpg','/static/upload/images/thumbnail/1605854939304.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100000','Jayneen Sanders','',0,'', 10),
+(2,1,'1021003','Hey Warrior!',0,100,'','','A fantastic book to help children understand what actually happens in their brain when they experience anxiety. Kids can do amazing things with the right information. Understanding why anxiety feels the way it does, and where the physical symptoms come from, is a powerful step in turning anxiety around. This book is an amazing resource for kids 5 years and above who feel anxious and overwhelmed by those feelings.',1,0,7,0,0,0.00,0.00,1,'本','/static/upload/images/1605854735547.jpg','/static/upload/images/thumbnail/1605854735547.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100001','scott','',0,'', 20),
+(3,2,'1021004','The Huge Bag of Worries',0,100,'','','Wherever Jenny goes, her worries follow her — in a big blue bag. They are there when she goes swimming, when she is watching TV, and even when she is in the lavatory. Jenny decides they will have to go. But who can help her? A great book to use with anxious children as it helps sort worries through and make them seem more manageable. It emphasizes that we all have worries and what to do about them.',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605854963252.jpg','/static/upload/images/thumbnail/1605854963252.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,1,'100002','Karen Young','',0,'',30),
+(4,2,'1021005','When My Worries Get too Big',0,100,'','','More than any other issue, \'losing control\' can cause major problems for children. Through the irresistible character of Nicholas, this book gives young children an opportunity to explore with parents or teachers their own feelings as they react to events in their daily lives while learning some useful relaxation techniques. Children who use the simple strategies presented in this charming book, illustrated by the author, will find themselves relaxed and ready to work or play.',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605854990382.jpg','/static/upload/images/thumbnail/1605854990382.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,1,'100003','Virginia Ironside','',0,'',40),
+(5,3,'1021006','What to Do When You Worry Too Much',0,100,'','','\"What to Do When You Worry Too Much\" is an interactive self-help book designed to guide 6-12 year olds and their parents through the cognitive-behavioral techniques most often used in the treatment of generalized anxiety. Engaging, encouraging, and easy to follow, this book educates, motivates, and em',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605854976168.jpg','/static/upload/images/thumbnail/1605854976168.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100004','Kari Dunn Buron','',0,'',50),
+(6,3,'1021007','Wilma Jean the Worry Machine',0,100,'','','This book, suitable for younger children, embraces life\'s happy accidents, the mistakes and mess-ups that can lead to self-discovery. Todd Parr brings a timely theme to life with his signature bold, kid-friendly illustrations and a passion for making readers feel good about themselves, encouraging them to try new things, experiment, and dare to explore new paths.',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605855016901.jpg','/static/upload/images/thumbnail/1605855016901.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100005','Dawn Huebner','',0,'', 60),
+(7,4,'1021008','David and the Worry Beast',0,100,'','','Everyone feels fear, worry and apprehension from time to time, but when these feelings prevent a person from doing what he/she wants and/or needs to do, anxiety becomes a disability. This fun and humorous book addresses the problem of anxiety in a way that relates to children of all ages. It offers creative strategies for parents and teachers to use that can lessen the severity of anxiety. The goal of the bo',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605854607147.jpg','/static/upload/images/thumbnail/1605854607147.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100006','Todd Parr','',0,'',70),
+(8,4,'1021009','When Worry Takes Hold',0,100,'','','David could not stop thinking about the basket he had missed at the end of the big game. He was worried that he might do it again. He was worried that his team mates would be angry with him. He was worried that his parents would not be proud of him. He was also worried about an upcoming math test. In fact, David was worried a lot. \" Luckily, David finally confided in his parents and school nurse, both of whom gave him support and techniques for controlling the \"worry beast\" within him.',1,0,7,0,0,0.00,0.00,0,'本','/static/upload/images/1605855003875.jpg','/static/upload/images/thumbnail/1605855003875.jpg',39.00,34530,1122018,0.00,'','',0.00,0,0,0,'100007','Julia Cook','',0,'', 80);
 /*!40000 ALTER TABLE `nideshop_goods` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -702,18 +710,18 @@ CREATE TABLE `nideshop_keywords` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='热闹关键词表';
 
--- ----------------------------
--- Records of nideshop_keywords
--- ----------------------------
-BEGIN;
-INSERT INTO `nideshop_keywords` VALUES ('520元礼包抢先领', 1, 1, 1, 1, '', 1, 0);
-INSERT INTO `nideshop_keywords` VALUES ('单鞋', 0, 0, 1, 8, '', 7, 0);
-INSERT INTO `nideshop_keywords` VALUES ('墨镜', 0, 0, 1, 5, '', 5, 0);
-INSERT INTO `nideshop_keywords` VALUES ('夏凉被', 0, 0, 1, 100, '', 6, 0);
-INSERT INTO `nideshop_keywords` VALUES ('新品上市', 0, 0, 1, 100, '', 4, 0);
-INSERT INTO `nideshop_keywords` VALUES ('日式', 0, 0, 1, 100, '', 3, 0);
-INSERT INTO `nideshop_keywords` VALUES ('母亲节', 0, 0, 1, 100, '', 2, 0);
-COMMIT;
+-- -- ----------------------------
+-- -- Records of nideshop_keywords
+-- -- ----------------------------
+-- BEGIN;
+-- INSERT INTO `nideshop_keywords` VALUES ('520元礼包抢先领', 1, 1, 1, 1, '', 1, 0);
+-- INSERT INTO `nideshop_keywords` VALUES ('单鞋', 0, 0, 1, 8, '', 7, 0);
+-- INSERT INTO `nideshop_keywords` VALUES ('墨镜', 0, 0, 1, 5, '', 5, 0);
+-- INSERT INTO `nideshop_keywords` VALUES ('夏凉被', 0, 0, 1, 100, '', 6, 0);
+-- INSERT INTO `nideshop_keywords` VALUES ('新品上市', 0, 0, 1, 100, '', 4, 0);
+-- INSERT INTO `nideshop_keywords` VALUES ('日式', 0, 0, 1, 100, '', 3, 0);
+-- INSERT INTO `nideshop_keywords` VALUES ('母亲节', 0, 0, 1, 100, '', 2, 0);
+-- COMMIT;
 
 -- ----------------------------
 -- Table structure for nideshop_order
@@ -980,13 +988,13 @@ CREATE TABLE `nideshop_search_history` (
 -- ----------------------------
 -- Records of nideshop_search_history
 -- ----------------------------
-BEGIN;
-INSERT INTO `nideshop_search_history` VALUES (23, '母亲节', '', 1500564813, '1');
-INSERT INTO `nideshop_search_history` VALUES (24, '日式', '', 1500564816, '1');
-INSERT INTO `nideshop_search_history` VALUES (25, '日式', '', 1500564822, '1');
-INSERT INTO `nideshop_search_history` VALUES (26, '清新', '', 1500564835, '1');
-INSERT INTO `nideshop_search_history` VALUES (27, '日式', '', 1500638161, '1');
-COMMIT;
+-- BEGIN;
+-- INSERT INTO `nideshop_search_history` VALUES (23, '母亲节', '', 1500564813, '1');
+-- INSERT INTO `nideshop_search_history` VALUES (24, '日式', '', 1500564816, '1');
+-- INSERT INTO `nideshop_search_history` VALUES (25, '日式', '', 1500564822, '1');
+-- INSERT INTO `nideshop_search_history` VALUES (26, '清新', '', 1500564835, '1');
+-- INSERT INTO `nideshop_search_history` VALUES (27, '日式', '', 1500638161, '1');
+-- COMMIT;
 
 -- ----------------------------
 -- Table structure for nideshop_shipper
@@ -1128,6 +1136,7 @@ CREATE TABLE `nideshop_user` (
   `register_ip` varchar(255) NOT NULL DEFAULT '',
   `avatar` varchar(255) NOT NULL DEFAULT '',
   `weixin_openid` varchar(50) NOT NULL DEFAULT '',
+  `groups`  varchar(20) ,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_name` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

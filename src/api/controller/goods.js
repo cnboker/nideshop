@@ -163,7 +163,7 @@ module.exports = class extends Base {
     }
 
     if (!think.isEmpty(keyword)) {
-      whereMap.name = ['like', `%${keyword}%`];
+      whereMap['name|author|goods_desc|publisher'] = ['like', `%${keyword}%`];
       // 添加到搜索历史
       await this
         .model('search_history')
@@ -203,31 +203,22 @@ module.exports = class extends Base {
 
     const categoryIds = await goodsQuery
       .where(whereMap)
-      .getField('category_id', 10000);
+      .getField('category_id');
     if (!think.isEmpty(categoryIds)) {
-      // 查找二级分类的parent_id
-      const parentIds = await this
-        .model('category')
-        .where({
-          id: {
-            'in': categoryIds
-          }
-        })
-        .getField('parent_id', 10000);
       // 一级分类
-      const parentCategory = await this
+      const categories = await this
         .model('category')
         .field(['id', 'name'])
         .order({'sort_order': 'asc'})
         .where({
           'id': {
-            'in': parentIds
+            'in': categoryIds
           }
         })
         .select();
 
-      if (!think.isEmpty(parentCategory)) {
-        filterCategory = filterCategory.concat(parentCategory);
+      if (!think.isEmpty(categories)) {
+        filterCategory = filterCategory.concat(categories);
       }
     }
 
@@ -244,7 +235,7 @@ module.exports = class extends Base {
     // 搜索到的商品
     const goodsData = await goodsQuery
       .where(whereMap)
-      .field(['id', 'name', 'list_pic_url', 'retail_price'])
+      .field(['id', 'name', 'list_pic_url', 'retail_price', 'author'])
       .order(orderMap)
       .page(page, size)
       .countSelect();
@@ -382,7 +373,7 @@ module.exports = class extends Base {
         .find();
       relatedGoods = await model
         .where({category_id: goodsCategory.category_id})
-        .field(['id', 'name', 'list_pic_url', 'retail_price'])
+        .field(['id', 'name', 'list_pic_url', 'retail_price', 'author'])
         .limit(8)
         .select();
     } else {
@@ -390,7 +381,7 @@ module.exports = class extends Base {
         .where({
           id: ['IN', relatedGoodsIds]
         })
-        .field(['id', 'name', 'list_pic_url', 'retail_price'])
+        .field(['id', 'name', 'list_pic_url', 'retail_price', 'author'])
         .select();
     }
 

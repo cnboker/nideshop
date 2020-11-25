@@ -1,20 +1,11 @@
 const Base = require('./base.js');
 
 module.exports = class extends Base {
-  /**
-   * index action
-   * @return {Promise} []
-   * {
-  pageSize: 10, //每页显示的条数, think-model@1.1.8 之前该字段为 pagesize
-  currentPage: 1, //当前页
-  count: 100, //总条数
-  totalPages: 10, //总页数
-  data: [{ //当前页下的数据列表
-    name: "thinkjs",
-    email: "admin@thinkjs.org"
-  }, ...]
-}
-   */
+  rewriteParams(key, value) {
+    if (key === 'customer_id') {
+      return {user_id: value};
+    }
+  }
   async indexAction() {
     const {page, size, filter, sort} = this.queryParams();
     // const productId = this.get('productId') || 0;

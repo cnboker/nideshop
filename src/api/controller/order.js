@@ -60,19 +60,8 @@ module.exports = class extends Base {
       return this.fail('订单不存在');
     }
 
-    orderInfo.province_name = await this
-      .model('region')
-      .where({id: orderInfo.province})
-      .getField('name', true);
-    orderInfo.city_name = await this
-      .model('region')
-      .where({id: orderInfo.city})
-      .getField('name', true);
-    orderInfo.district_name = await this
-      .model('region')
-      .where({id: orderInfo.district})
-      .getField('name', true);
-    orderInfo.full_region = orderInfo.province_name + orderInfo.city_name + orderInfo.district_name;
+    //   .getField('name', true);
+    orderInfo.full_region = await this.getAddress(orderInfo.province, orderInfo.city, orderInfo.district);
 
     const latestExpressInfo = await this
       .model('order_express')

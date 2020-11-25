@@ -25,6 +25,7 @@ module.exports = class extends think.Model {
     // 2xx表示订单支付状态,201订单已付款，等待发货
     // 3xx表示订单物流相关状态,300订单已发货，301用户确认收货
     // 4xx表示订单退换货相关的状态,401没有发货，退款402,已收货，退款退货
+    // 5xx表示还书，501表示客户已发货，502平台确认收货
     // 如果订单已经取消或是已完成，则可删除和再次购买
     if (orderInfo.order_status === 101) {
       handleOption.delete = true;

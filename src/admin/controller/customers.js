@@ -1,34 +1,42 @@
 const Base = require('./base.js');
-
+// var moment = require('moment');
 module.exports = class extends Base {
-  /**
-   * index action
-   * @return {Promise} []
-   * {
-  pageSize: 10, //每页显示的条数, think-model@1.1.8 之前该字段为 pagesize
-  currentPage: 1, //当前页
-  count: 100, //总条数
-  totalPages: 10, //总页数
-  data: [{ //当前页下的数据列表
-    name: "thinkjs",
-    email: "admin@thinkjs.org"
-  }, ...]
-}
-   */
   async indexAction() {
-    const page = this.get('page') || 1;
-    const size = this.get('size') || 10;
-    const name = this.get('name') || '';
+    const {page, size, sqlToken, sort} = this.queryParams();
 
-    const model = this.model('user');
-    const result = await model
-      .where({
-        username: ['like', `%${name}%`]
-      })
-      .order(['id DESC'])
+    // eslint-disable-next-line camelcase const {groups, nb_commands, last_seen, q}
+    // = filter;
+    const modelQuery = this.model('user');
+    // const whereQuery = {}; if (!think.isEmpty(groups)) {   whereQuery.groups =
+    // ['like', `%${groups}%`]; } if (!think.isEmpty(q)) {   whereQuery.nickname =
+    // ['like', `%${q}%`]; } // 有下单 if (!think.isEmpty(nb_commands)) {} if
+    // (!think.isEmpty(last_seen)) {   whereQuery.last_login_time = [     '>=',
+    // `${this.getTime(last_seen)}`   ]; }
+    const whereSQL = sqlToken
+      .replace('nb_commands', '')
+      .replace('q', 'nickname')
+      .replace('last_seen', 'last_login_time')
+      .toTime('last_login_time')
+      .toWhereSQL();
+    const result = await modelQuery
+      .where(whereSQL)
+      .order(sort)
       .page(page, size)
       .countSelect();
+    result.data = result
+      .data
+      .map(x => {
+        return this.outConvert(x);
+      });
     return this.simplePageRest(result);
+  }
+
+  outConvert(item) {
+    item.groups = item
+      .groups
+      .split(',');
+    item.birthday = item.birthday * 1000;
+    return item;
   }
 
   async getAction() {
@@ -40,34 +48,46 @@ module.exports = class extends Base {
     const data = await model
       .where({id: id})
       .find();
-
-    return this.simpleRest(data);
+    return this.simpleRest(this.outConvert(data));
   }
-
-  async postAction() {
-    if (!this.isPost) {
-      return false;
-    }
-
-    const values = this.post();
-    const id = this.post('id');
-
-    const model = this.model('user');
+  inConvert(values) {
     values.is_show = values.is_show
       ? 1
       : 0;
     values.is_new = values.is_new
       ? 1
       : 0;
+    values.groups = (values.groups || '').join(',');
+    values.birthday = this.getTime(new Date(values.birthday));
+    return values;
+  }
+  async postAction() {
+    if (!this.isPost) {
+      return false;
+    }
+
+    let values = this.post();
+    const model = this.model('user');
+    values = this.inConvert(values);
+    delete values.id;
+
+    await model.add(values);
+    return this.simpleRest(this.outConvert(values));
+  }
+
+  async putAction() {
+    let values = this.post();
+    // eslint-disable-next-line no-console
+    const id = this.post('id');
+
+    const model = this.model('user');
+    values = this.inConvert(values);
     if (id > 0) {
       await model
         .where({id: id})
         .update(values);
-    } else {
-      delete values.id;
-      await model.add(values);
-    }
-    return this.success(values);
+    };
+    return this.simpleRest(this.outConvert(values));
   }
 
   async deleteAction() {
@@ -79,6 +99,6 @@ module.exports = class extends Base {
       .delete();
     // TODO 删除图片
 
-    return this.success();
+    return this.simpleRest();
   }
 };
