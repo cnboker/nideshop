@@ -1,4 +1,5 @@
 const Base = require('./base.js');
+const {getOrderStatusText} = require('../../common/util');
 
 const orderStatus = {
   ordered: 0,
@@ -15,22 +16,51 @@ module.exports = class extends Base {
     const {page, size, sort, sqlToken} = this.queryParams();
     const whereSQL = sqlToken
       .replace('date', 'add_time')
-      .replace('customer_id', 'add_time')
-      .rewrite('status', (value) => {
+      .replace('customer_id', 'user_id')
+      .replace('q', 'mobile|order_sn')
+      .replace('status', 'order_status')
+      .rewrite('order_status', (value) => {
         return orderStatus[value];
-      }).toWhereSQL();
+      })
+      .toWhereSQL();
 
-    const model = this.model('command');
+    const model = this.model('order');
     const data = await model
       .where(whereSQL)
       .order(sort)
       .page(page, size)
       .countSelect();
+    if (data.data.length === 0) {
+      return this.simplePageRest(data);
+    }
     const newList = [];
+    const orderGoods = await this
+      .model('order_goods')
+      .field(['nideshop_order_goods.*', 'nideshop_goods.ISBN', 'nideshop_goods.author', 'nideshop_goods.publisher'])
+      .join('nideshop_goods on nideshop_goods.id = nideshop_order_goods.goods_id')
+      .field([
+        'order_id',
+        'ISBN',
+        'author',
+        'publisher',
+        'goods_id as product_id',
+        'goods_name as name',
+        'number as quantity'
+      ])
+      .where({
+        order_id: [
+          'in',
+          data
+            .data
+            .map(x => x.id)
+        ]
+      })
+      .select();
+
     for (const item of data.data) {
-      item.order_status_text = await this
-        .model('order')
-        .getOrderStatusText(item.id);
+      item.order_status_text = getOrderStatusText(item.order_status);
+      // eslint-disable-next-line no-undef
+      item.basket = orderGoods.filter(x => x.order_id === item.id);
       newList.push(item);
     }
     data.data = newList;
@@ -42,11 +72,26 @@ module.exports = class extends Base {
     if (!id) {
       return this.indexAction();
     }
-    const model = this.model('command');
+    const model = this.model('order');
     const data = await model
       .where({id: id})
       .find();
-
+    data.basket = await this
+      .model('order_goods')
+      .field(['nideshop_order_goods.*', 'nideshop_goods.ISBN', 'nideshop_goods.author', 'nideshop_goods.publisher'])
+      .join('nideshop_goods on nideshop_goods.id = nideshop_order_goods.goods_id')
+      .field([
+        'order_id',
+        'ISBN',
+        'author',
+        'publisher',
+        'goods_id as product_id',
+        'goods_name as name',
+        'number as quantity'
+      ])
+      .where({order_id: data.id})
+      .select();
+    data.order_status_text = getOrderStatusText(data.order_status);
     return this.simpleRest(data);
   }
 

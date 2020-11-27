@@ -32,8 +32,8 @@ module.exports = class extends Base {
   }
 
   outConvert(item) {
-    item.groups = item
-      .groups
+    item.groups = (item
+      .groups || '')
       .split(',');
     item.birthday = item.birthday * 1000;
     return item;

@@ -8,8 +8,12 @@ module.exports = class extends Base {
   async indexAction() {
     const {page, size, sqlToken, sort} = this.queryParams();
     const model = this.model('goods');
+    const sql = sqlToken
+      .replace('sell_volume', 'volume')
+      .replace('q', 'name|author|isbn|goods_desc')
+      .toWhereSQL();
     const data = await model
-      .where(sqlToken.replace('sell_volume', 'volume').toWhereSQL())
+      .where(sql)
       .order(sort)
       .page(page, size)
       .countSelect();

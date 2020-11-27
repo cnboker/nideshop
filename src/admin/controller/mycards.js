@@ -2,10 +2,16 @@ const Base = require('./base.js');
 
 module.exports = class extends Base {
   async indexAction() {
-    const {page, size, filter, sort} = this.queryParams();
-    const model = this.model('mycard');
+    const {page, size, sqlToken, sort} = this.queryParams();
+    const model = this.model('mycard')
+      .field(['nideshop_mycard.*', 'nideshop_user.nickname', 'nideshop_user.mobile'])
+      .join('nideshop_user on nideshop_user.id=nideshop_mycard.user_id');
+    const whereSQL = sqlToken
+      .replace('q', 'nickname|mobile') // like '%nickname%' or like '%mobile%'
+      .toTime('date')
+      .toWhereSQL();
     const result = await model
-      .where(filter)
+      .where(whereSQL)
       .order(sort)
       .page(page, size)
       .countSelect();

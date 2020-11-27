@@ -725,39 +725,6 @@ CREATE TABLE `nideshop_keywords` (
 
 -- ----------------------------
 -- Table structure for nideshop_order
--- ----------------------------
-DROP TABLE IF EXISTS `nideshop_command`;
-CREATE TABLE `nideshop_command` (
-  `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-  `order_sn` varchar(20) NOT NULL DEFAULT '',
-  `user_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `status` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `add_time` int(11) unsigned NOT NULL DEFAULT '0',
-  `confirm_time` int(11) unsigned NOT NULL DEFAULT '0',
-  `country` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `province` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `city` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `district` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `address` varchar(255) NOT NULL DEFAULT '',
-  `mobile` varchar(60) NOT NULL DEFAULT '',
-  `postscript` varchar(255) NOT NULL DEFAULT '',
-  `shipping_fee` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `shipping_time` int(11) unsigned NOT NULL DEFAULT '0',
-  `receiving_time` int(11) unsigned NOT NULL DEFAULT '0',
-  `return_time` int(11) unsigned NOT NULL DEFAULT '0',
-  `expired_time` int(11) unsigned NOT NULL DEFAULT '0',
-  `remark` varchar(255) NOT NULL DEFAULT '',
-   `late_fee` decimal(10,2) NOT NULL DEFAULT '0.00',
-   `itemCount` smallint(5) unsigned NOT NULL DEFAULT '0',
-   `basket` JSON,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `order_sn` (`order_sn`),
-  KEY `user_id` (`user_id`),
-  KEY `status` (`status`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4;
-
--- ----------------------------
--- Table structure for nideshop_order
 -- order_status: 'temporary' 临时订单，指未付款,卡付款整个后改成 ordered, 'ordered' | 'delivered' | 'cancelled' | 'received' | 'returning' | 'returned'
 -- ----------------------------
 DROP TABLE IF EXISTS `nideshop_order`;
@@ -793,6 +760,12 @@ CREATE TABLE `nideshop_order` (
   `parent_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `coupon_price` decimal(10,2) NOT NULL DEFAULT '0.00',
   `callback_status` enum('true','false') DEFAULT 'true',
+  `shipping_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '发货日期',
+  `receiving_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '收货日期',
+  `return_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '还书日期',
+  `expired_time` int(11) unsigned NOT NULL DEFAULT '0'COMMENT '过期日期',
+  `remark` varchar(255) NOT NULL DEFAULT '',
+  `late_fee` decimal(10,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`id`),
   UNIQUE KEY `order_sn` (`order_sn`),
   KEY `user_id` (`user_id`),
@@ -902,6 +875,7 @@ CREATE TABLE `nideshop_payment` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `order_sn` varchar(20) NOT NULL DEFAULT '',
   `user_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `card_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `title` varchar(200) NOT NULL DEFAULT '',
   `paymethod` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '0:微信支付，1:支付宝', 
   `cardPrice` decimal(10,2) unsigned NOT NULL DEFAULT '0.00',
@@ -1155,31 +1129,6 @@ CREATE TABLE `nideshop_user_coupon` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4;
-
--- ----------------------------
--- Records of nideshop_user_coupon
--- ----------------------------
-BEGIN;
-INSERT INTO `nideshop_user_coupon` VALUES (1, 3, '0', 1, 1242142681, 4);
-INSERT INTO `nideshop_user_coupon` VALUES (2, 4, '1000003379', 1, 1242976699, 14);
-INSERT INTO `nideshop_user_coupon` VALUES (3, 4, '1000018450', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (4, 4, '1000023774', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (5, 4, '1000039394', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (6, 4, '1000049305', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (7, 4, '1000052248', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (8, 4, '1000061542', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (9, 4, '1000070278', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (10, 4, '1000080588', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (11, 4, '1000091405', 0, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (24, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (25, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (26, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (27, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (28, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (29, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (30, 3, '0', 1, 0, 0);
-INSERT INTO `nideshop_user_coupon` VALUES (31, 3, '0', 1, 0, 0);
-COMMIT;
 
 -- ----------------------------
 -- Table structure for nideshop_user_level

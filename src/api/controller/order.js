@@ -1,5 +1,6 @@
 const Base = require('./orderBase.js');
 const moment = require('moment');
+const {getOrderStatusText} = require('../../common/util');
 
 module.exports = class extends Base {
   /**
@@ -29,9 +30,7 @@ module.exports = class extends Base {
         });
 
       // 订单状态的处理
-      item.order_status_text = await this
-        .model('order')
-        .getOrderStatusText(item.id);
+      item.order_status_text = getOrderStatusText(item.id);
 
       // 可操作的选项
       item.handleOption = await this
@@ -74,9 +73,7 @@ module.exports = class extends Base {
       .select();
 
     // 订单状态的处理
-    orderInfo.order_status_text = await this
-      .model('order')
-      .getOrderStatusText(orderId);
+    orderInfo.order_status_text = getOrderStatusText(orderId);
     orderInfo.add_time = moment
       .unix(orderInfo.add_time)
       .format('YYYY-MM-DD HH:mm:ss');
@@ -152,7 +149,6 @@ module.exports = class extends Base {
     if (!card) {
       this.fail('请选择会员卡');
     }
-    let mycard = await this.getMycard();
 
     // 获取订单使用的优惠券
     const couponId = this.post('couponId');
@@ -168,40 +164,19 @@ module.exports = class extends Base {
     // actualPrice += diposit; 新卡
     // eslint-disable-next-line camelcase
     let pay_status = 1;
+    const mycard = await this.getMycard();
+    // 支付成功后再生成mycard对象
     if (!mycard) {
       // eslint-disable-next-line camelcase
       pay_status = 0;
-      mycard = {
-        order_sn,
-        name: card.name,
-        reamrk: card.remark,
-        price: card.price,
-        duration: card.duration,
-        discount_price: card.discount_price,
-        user_id: this.getLoginUserId(),
-        card_id: card.id,
-        total: card.discount_price,
-        date: this.getTime(),
-        isValid: false, // 付款成功后需要更新未true
-        useTimes: card.useTimes,
-        leftTimes: card.useTimes
-      };
-
-      const mycardId = await this
-        .model('mycard')
-        .add(mycard);
-      mycard.id = mycardId;
-      if (!mycardId) {
-        return this.fail('卡记录提交失败');
-      }
-
       // 增加payment
       const payment = {
         order_sn,
+        card_id: card.id,
         user_id: this.getLoginUserId(),
         title: `${card.name}及押金费用`,
         paymethod: 0,
-        cardPrice: mycard.total,
+        cardPrice: card.discount_price,
         deposit,
         date: this.getTime(),
         overdueDate: this.addHour(1),
@@ -215,7 +190,7 @@ module.exports = class extends Base {
 
     const orderInfo = {
       order_sn,
-      mycard_id: mycard.id,
+      mycard_id: mycard ? mycard.id : 0,
       user_id: this.getLoginUserId(),
       // 收货地址和运费
       consignee: checkedAddress.name,

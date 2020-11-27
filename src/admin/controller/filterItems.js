@@ -1,7 +1,7 @@
 export function filterItems(filter) {
   const tokens = {};
   // 这里不能改箭头函数
-  tokens.replace = function (oldKey, newKey) {
+  tokens.replace = function(oldKey, newKey) {
     if (!this[oldKey]) {
       return this;
     }
@@ -9,7 +9,14 @@ export function filterItems(filter) {
       delete this[oldKey];
       return this;
     }
-    this[newKey] = this[oldKey];
+    if (newKey.indexOf('|') !== -1) {
+      var arr = newKey.split('|');
+      for (const k of arr) {
+        this[k] = this[oldKey];
+      }
+    } else {
+      this[newKey] = this[oldKey];
+    }
     delete this[oldKey];
     return this;
   };
@@ -25,25 +32,39 @@ export function filterItems(filter) {
   };
 
   tokens.toWhereSQL = function() {
-    return Object
+    const [andList, orList] = Object
       .keys(this)
       .filter(key => {
         return !isFunction(this[key]);
       })
-      .map(key => {
-        const andArray = [];
+      .reduce(([andList, orList], key) => {
         const clone = [...this[key]];
         while (clone.length > 0) {
           const smbol = clone.shift();
           let value = clone.shift();
-          value = isString(value)
-            ? `'${value}'`
-            : value;
-          andArray.push(`\`${key}\` ${smbol} ${value}`);
+          if (isString(value)) {
+            value = `'${value}'`;
+          }
+          if (value instanceof Array) {
+            value = `(${value})`;
+          }
+          const s = `\`${key}\` ${smbol} ${value}`;
+          if (smbol === 'like') {
+            orList.push(s);
+          } else {
+            andList.push(s);
+          }
         }
-        return andArray.join(' and ');
-      })
-      .join(' and ');
+        return [andList, orList];
+      }, [[], []]);
+
+    if (orList.length === 0) {
+      orList.push('1 = 1');
+    }
+    if (andList.length === 0) {
+      andList.push('1 = 1');
+    }
+    return `(${andList.join(' and ')}) and (${orList.join(' or ')})`;
   };
 
   tokens.toTime = function(key) {
@@ -51,7 +72,7 @@ export function filterItems(filter) {
       const arr = this[key];
       for (let i = 0; i < arr.length; i++) {
         if (i % 2 !== 0) {
-          arr[i] = Date.parse(arr[i]);
+          arr[i] = Date.parse(arr[i]) / 1000;
         }
       }
     }

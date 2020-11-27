@@ -60,18 +60,6 @@ module.exports = class extends think.Model {
     return handleOption;
   }
 
-  async getOrderStatusText(orderId) {
-    const orderInfo = await this.where({id: orderId}).find();
-    let statusText = '未付款';
-    switch (orderInfo.order_status) {
-      case 0:
-        statusText = '未付款';
-        break;
-    }
-
-    return statusText;
-  }
-
   /**
    * 更改订单支付状态
    * @param orderId

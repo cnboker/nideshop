@@ -27,14 +27,13 @@ module.exports = class extends think.Model {
       buy: false // 再次购买
     };
 
-    const orderInfo = await this.where({id: orderId}).find();
+    const orderInfo = await this
+      .where({id: orderId})
+      .find();
 
-    // 订单流程：下单成功－》支付订单－》发货－》收货－》评论
-    // 订单相关状态字段设计，采用单个字段表示全部的订单状态
-    // 1xx表示订单取消和删除等状态 0订单创建成功等待付款，101订单已取消，102订单已删除
-    // 2xx表示订单支付状态,201订单已付款，等待发货
-    // 3xx表示订单物流相关状态,300订单已发货，301用户确认收货
-    // 4xx表示订单退换货相关的状态,401没有发货，退款402,已收货，退款退货
+    // 订单流程：下单成功－》支付订单－》发货－》收货－》评论 订单相关状态字段设计，采用单个字段表示全部的订单状态 1xx表示订单取消和删除等状态
+    // 0订单创建成功等待付款，101订单已取消，102订单已删除 2xx表示订单支付状态,201订单已付款，等待发货
+    // 3xx表示订单物流相关状态,300订单已发货，301用户确认收货 4xx表示订单退换货相关的状态,401没有发货，退款402,已收货，退款退货
     // 如果订单已经取消或是已完成，则可删除和再次购买
     if (orderInfo.order_status === 101) {
       handleOption.delete = true;
@@ -67,17 +66,5 @@ module.exports = class extends think.Model {
     }
 
     return handleOption;
-  }
-
-  async getOrderStatusText(orderId) {
-    const orderInfo = await this.where({id: orderId}).find();
-    let statusText = '未付款';
-    switch (orderInfo.order_status) {
-      case 0:
-        statusText = '未付款';
-        break;
-    }
-
-    return statusText;
   }
 };

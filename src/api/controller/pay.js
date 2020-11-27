@@ -9,19 +9,19 @@ module.exports = class extends Base {
   async prepayAction() {
     const orderId = this.get('orderId');
 
-    const orderInfo = await this
-      .model('mycard')
+    const payment = await this
+      .model('payment')
       .where({order_sn: orderId})
       .find();
-    if (think.isEmpty(orderInfo)) {
+    if (think.isEmpty(payment)) {
       return this.fail(400, '订单已取消');
     }
-    if (parseInt(orderInfo.is_pay) !== 0) {
+    if (parseInt(payment.pay_status) !== 0) {
       return this.fail(400, '订单已支付，请不要重复操作');
     }
     const openid = await this
       .model('user')
-      .where({id: orderInfo.user_id})
+      .where({id: payment.user_id})
       .getField('weixin_openid', true);
     if (think.isEmpty(openid)) {
       return this.fail('微信支付失败 openid empty');
@@ -30,12 +30,13 @@ module.exports = class extends Base {
     try {
       const returnParams = await WeixinSerivce.createUnifiedOrder({
         openid: openid,
-        body: '订单编号：' + orderInfo.order_sn,
-        out_trade_no: orderInfo.order_sn,
+        body: '订单编号：' + orderId,
+        out_trade_no: orderId,
         // total_fee: parseInt(orderInfo.actual_price * 100),
         total_fee: 1,
         spbill_create_ip: ''
       });
+
       return this.success(returnParams);
     } catch (err) {
       return this.fail(400, `微信支付失败 ${err.err_code_des || err.return_msg}`);
@@ -58,24 +59,66 @@ module.exports = class extends Base {
       .countSelect();
     return this.success(orderList);
   }
+
   // 微信需要配置该参数
   async notifyAction() {
     const WeixinSerivce = this.service('weixin', 'api');
-    const result = WeixinSerivce.payNotify(this.post('xml'));
+    let result = WeixinSerivce.payNotify(this.post('xml'));
     if (!result) {
       return `<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[支付失败]]></return_msg></xml>`;
     }
     // eslint-disable-next-line camelcase
     const order_sn = result.out_trade_no;
     // 付款成功，更新相关表状态
-    this.payAfter(order_sn);
+    result = this.paySuccess(order_sn);
+    if (!result.code) {
+      return `<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[支付失败]]></return_msg></xml>`;
+    }
     return `<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>`;
   }
 
   async testAction() {
     // eslint-disable-next-line camelcase
     const order_sn = this.get('orderId');
-    this.payAfter(order_sn);
+    const result = await this.paySuccess(order_sn);
+    if (!result.code) {
+      return this.fail(result.message);
+    }
+    return this.success('ok');
+  }
+
+  // 取消付款
+  async cancelAction() {
+    // eslint-disable-next-line camelcase
+    const order_sn = this.post('order_sn');
+    const payment = await this
+      .model('payment')
+      .where({
+        user_id: this.getLoginUserId(),
+        order_sn
+      })
+      .find();
+    if (!payment) {
+      return this.fail('付款账单未找到');
+    }
+    await this
+      .model('payment')
+      .where({order_sn})
+      .delete();
+    await this
+      .model('order')
+      .where({order_sn})
+      .limit(1)
+      .delete();
+    await this
+      .model('order_goods')
+      .where({order_sn})
+      .delete();
+    await this
+      .model('mycard')
+      .where({order_sn})
+      .limit(1)
+      .delete();
     return this.success('ok');
   }
 
@@ -102,50 +145,71 @@ module.exports = class extends Base {
         .model('order_goods')
         .where({order_sn})
         .delete();
-      await this
-        .model('mycard')
-        .where({order_sn})
-        .limit(1)
-        .delete();
+      return this.success('ok');
     }
   }
 
+  // return {code:0:failure, 1:success, message:''} eslint-disable-next-line
+  // camelcase eslint-disable-next-line camelcase eslint-disable-next-line
+  // camelcase eslint-disable-next-line camelcase
   // eslint-disable-next-line camelcase
-  async payAfter(order_sn) {
+  async paySuccess(order_sn) {
     const payment = await this
       .model('payment')
       .where({order_sn})
       .find();
-
-    if (think.isEmpty(payment)) {
-      return `<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[订单不存在]]></return_msg></xml>`;
+    if (payment.pay_status) {
+      return {code: 0, message: '已付款，不能重复付款'};
     }
+    if (think.isEmpty(payment)) {
+      return {code: 0, message: `<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[订单不存在]]></return_msg></xml>`};
+    }
+    let mycard = await this
+      .model('mycard')
+      .where({order_sn})
+      .find();
+    if (!think.isEmpty(mycard)) {
+      return {code: 0, message: '卡已存在，操作异常'};
+    }
+    const card = await this
+      .model('usercard')
+      .where({id: payment.card_id})
+      .find();
+    // eslint-disable-next-line no-const-assign
+    mycard = {
+      order_sn,
+      name: card.name,
+      reamrk: card.remark,
+      price: card.price,
+      duration: card.duration,
+      discount_price: card.discount_price,
+      user_id: this.getLoginUserId(),
+      card_id: card.id,
+      total: card.discount_price,
+      date: this.getTime(),
+      isValid: 1, // 付款成功后需要更新未true
+      useTimes: card.useTimes,
+      leftTimes: card.useTimes,
+      activeDate: this.getTime(),
+      expiredDate: this.addHour(mycard.duration * 24)
+    };
+
+    // if (mycard.useTimes > 0) {   mycard.leftTimes -= 1;   // 卡次为0作废   if
+    // (mycard.leftTimes === 0) {     mycard.isValid = false;     mycard.remark =
+    // '次卡用完';   } } eslint-disable-next-line camelcase eslint-disable-next-line
+    // camelcase
+    // eslint-disable-next-line camelcase
+    const mycard_id = await this
+      .model('mycard')
+      .add(mycard);
 
     // 更新订单状态
     await this
       .model('order')
       .where({order_sn})
       .limit(1)
-      .update({pay_status: 1});
-    // 更新mycard
-    const mycard = await this
-      .model('mycard')
-      .where({order_sn})
-      .find();
-    mycard.isValid = 1;
-    mycard.activeDate = this.getTime();
-    mycard.expiredDate = this.addHour(mycard.duration * 24);
-    if (mycard.useTimes > 0) {
-      mycard.leftTimes -= 1;
-      // 卡次为0作废
-      if (mycard.leftTimes === 0) {
-        mycard.isValid = false;
-        mycard.remark = '次卡用完';
-      }
-    }
-    await this
-      .model('mycard')
-      .update(mycard);
+      .update({pay_status: 1, mycard_id, order_status: 201});
+
     // 更新payment
     await this
       .model('payment')
@@ -172,5 +236,7 @@ module.exports = class extends Base {
         total: payment.deposit,
         date: this.getTime()
       });
+
+    return {code: 1};
   }
 };

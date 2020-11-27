@@ -213,7 +213,7 @@ module.exports = class extends Base {
     await this
       .model('cart')
       .where({
-        product_id: {
+        goods_id: {
           'in': productId
         }
       })
@@ -224,18 +224,15 @@ module.exports = class extends Base {
 
   // 删除选中的购物车商品，批量删除
   async deleteAction() {
-    let productId = this.post('productIds');
-    if (!think.isString(productId)) {
+    const ids = this.post('ids');
+    if (!think.isString(ids)) {
       return this.fail('删除出错');
     }
-
-    productId = productId.split(',');
-
     await this
       .model('cart')
       .where({
-        product_id: {
-          'in': productId
+        id: {
+          'in': ids.split(',')
         }
       })
       .delete();
@@ -301,16 +298,7 @@ module.exports = class extends Base {
     }
 
     if (!think.isEmpty(checkedAddress)) {
-      checkedAddress.province_name = await this
-        .model('region')
-        .getRegionName(checkedAddress.province_id);
-      checkedAddress.city_name = await this
-        .model('region')
-        .getRegionName(checkedAddress.city_id);
-      checkedAddress.district_name = await this
-        .model('region')
-        .getRegionName(checkedAddress.district_id);
-      checkedAddress.full_region = checkedAddress.province_name + checkedAddress.city_name + checkedAddress.district_name;
+      checkedAddress.full_region = await this.getAddress(checkedAddress.province_id, checkedAddress.city_id, checkedAddress.district_id);
     }
 
     // 根据收货地址计算运费
@@ -332,7 +320,7 @@ module.exports = class extends Base {
     const goodsTotalPrice = cartData.cartTotal.checkedGoodsAmount; // 商品总价
     const orderTotalPrice = cartData.cartTotal.checkedGoodsAmount + freightPrice - couponPrice; // 订单的总价
     const actualPrice = orderTotalPrice - 0.00; // 减去其它支付的金额后，要实际支付的金额
-
+    const deposit = +think.config('deposit'); // 押金
     return this.success({
       checkedAddress: checkedAddress,
       freightPrice: freightPrice,
@@ -344,7 +332,8 @@ module.exports = class extends Base {
       orderTotalPrice: orderTotalPrice,
       actualPrice: actualPrice,
       // cardId=0说明用户名还没有开卡，这里返回{},cardId>0则到mycard表查找有无可用卡记录，有则返回，没有则创建一个新的未付款mycard记录
-      checkedMycard: mycard || {}
+      checkedMycard: mycard || {},
+      deposit
     });
   }
 };
