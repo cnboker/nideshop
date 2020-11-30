@@ -151,7 +151,8 @@ module.exports = class extends Base {
 
   // return {code:0:failure, 1:success, message:''} eslint-disable-next-line
   // camelcase eslint-disable-next-line camelcase eslint-disable-next-line
-  // camelcase eslint-disable-next-line camelcase
+  // camelcase eslint-disable-next-line camelcase eslint-disable-next-line
+  // camelcase
   // eslint-disable-next-line camelcase
   async paySuccess(order_sn) {
     const payment = await this
@@ -190,14 +191,11 @@ module.exports = class extends Base {
       isValid: 1, // 付款成功后需要更新未true
       useTimes: card.useTimes,
       leftTimes: card.useTimes,
-      activeDate: this.getTime(),
-      expiredDate: this.addHour(mycard.duration * 24)
+      activateDate: this.getTime(),
+      expiredDate: this.addHour(card.duration * 24)
     };
 
-    // if (mycard.useTimes > 0) {   mycard.leftTimes -= 1;   // 卡次为0作废   if
-    // (mycard.leftTimes === 0) {     mycard.isValid = false;     mycard.remark =
-    // '次卡用完';   } } eslint-disable-next-line camelcase eslint-disable-next-line
-    // camelcase
+    // camelcase eslint-disable-next-line camelcase
     // eslint-disable-next-line camelcase
     const mycard_id = await this
       .model('mycard')
@@ -224,19 +222,24 @@ module.exports = class extends Base {
       .model('invoice')
       .add({
         user_id: payment.user_id,
+        order_sn,
         title: '会员卡费用',
         total: payment.cardPrice,
-        date: this.getTime()
+        date: this.getTime(),
+        feeType: 0
       });
-    await this
-      .model('invoice')
-      .add({
-        user_id: payment.user_id,
-        title: '押金',
-        total: payment.deposit,
-        date: this.getTime()
-      });
-
+    if (payment.deposit > 0) {
+      await this
+        .model('invoice')
+        .add({
+          user_id: payment.user_id,
+          order_sn,
+          title: '押金',
+          total: payment.deposit,
+          date: this.getTime(),
+          feeType: 1
+        });
+    }
     return {code: 1};
   }
 };

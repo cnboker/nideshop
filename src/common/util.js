@@ -13,7 +13,7 @@ export const getOrderStatusText = (orderStatus) => {
       statusText = '已发货';
       break;
     case 301:
-      statusText = '用户已确认';
+      statusText = '收货已确认';
       break;
     case 401:
       statusText = '没发货';

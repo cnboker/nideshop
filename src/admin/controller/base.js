@@ -20,17 +20,17 @@ module.exports = class extends think.Controller {
     // const newLocal = this.ctx.req;
     const params = parseQueryString(this.ctx.req.queryString);
 
-    // eslint-disable-next-line no-console
-    // console.log('this.ctx.req.params', params, this.ctx.req.queryString);
+    // eslint-disable-next-line no-console console.log('this.ctx.req.params',
+    // params, this.ctx.req.queryString);
     if (params) {
       if (params.filter) {
         const {whereSQL, sqlToken} = filterItems(params.filter);
         params.whereSQL = whereSQL.join(' and ');
         params.sqlToken = sqlToken;
-         // eslint-disable-next-line no-console
+        // eslint-disable-next-line no-console
         console.log('sqlToken', sqlToken);
       }
-     
+
       // eslint-disable-next-line one-var
       let size = 0;
       // eslint-disable-next-line prefer-const
@@ -92,5 +92,19 @@ module.exports = class extends think.Controller {
   getTime(date) {
     var d = date || Date.now();
     return parseInt(d / 1000);
+  }
+
+  addHour(hours) {
+    // eslint-disable-next-line no-extend-native
+    Date.prototype.addHours = function(h) {
+      this.setHours(this.getHours() + h);
+      return this;
+    };
+    return parseInt((new Date().addHours(hours)).getTime() / 1000);
+  }
+
+  badRequest(body) {
+    this.ctx.status = 500;
+    this.ctx.body = body;
   }
 };

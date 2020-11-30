@@ -71,9 +71,11 @@ CREATE TABLE `nideshop_address` (
 -- ----------------------------
 -- Records of nideshop_address
 -- ----------------------------
--- BEGIN;
--- INSERT INTO `nideshop_address` VALUES (3, '小明', 1, 1, 20, 233, 2414, '民族大道1号', '13800008888', 1);
--- COMMIT;
+LOCK TABLES `nideshop_address` WRITE;
+/*!40000 ALTER TABLE `nideshop_address` DISABLE KEYS */;
+INSERT INTO `nideshop_address` VALUES (12,'宋帅军',1,0,20,233,2416,'龙岗九州家园东区2栋','18938919024',1);
+/*!40000 ALTER TABLE `nideshop_address` ENABLE KEYS */;
+UNLOCK TABLES;
 
 -- ----------------------------
 -- Table structure for nideshop_admin
@@ -733,7 +735,7 @@ CREATE TABLE `nideshop_order` (
   `order_sn` varchar(20) NOT NULL DEFAULT '',
   `mycard_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `user_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `order_status` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '订单状态,',
+  `order_status` smallint unsigned NOT NULL DEFAULT '0' COMMENT '订单状态,',
   `shipping_status` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `pay_status` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `consignee` varchar(60) NOT NULL DEFAULT '',
@@ -762,6 +764,7 @@ CREATE TABLE `nideshop_order` (
   `callback_status` enum('true','false') DEFAULT 'true',
   `shipping_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '发货日期',
   `receiving_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '收货日期',
+  `returning_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '用户一键还书时间',
   `return_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '还书日期',
   `expired_time` int(11) unsigned NOT NULL DEFAULT '0'COMMENT '过期日期',
   `remark` varchar(255) NOT NULL DEFAULT '',
@@ -894,10 +897,12 @@ CREATE TABLE `nideshop_payment` (
 DROP TABLE IF EXISTS `nideshop_invoice`;
 CREATE TABLE `nideshop_invoice` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `order_sn` varchar(20) NOT NULL DEFAULT '',
   `user_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `title` varchar(200) NOT NULL DEFAULT '',
   `total` decimal(10,2) unsigned NOT NULL DEFAULT '0.00',
   `date` int(11) NOT NULL DEFAULT '0' COMMENT '添加时间',
+  `feeType` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '0:卡费,1:押金,2:滞纳金',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4;
 
@@ -1115,6 +1120,9 @@ CREATE TABLE `nideshop_user` (
   UNIQUE KEY `user_name` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+begin;
+INSERT INTO `nideshop_user` VALUES (1,'微信用户9b2ee3e5-f716-4e3f-9bd1-e867a34215c8','',1,0,1606594062,1606594062,'::ffff:127.0.0.1',0,'宋帅军','','::ffff:127.0.0.1','https://thirdwx.qlogo.cn/mmopen/vi_32/znPJ6TIaeibB8aATiaTpBkHpvJNW3hn3bh5BgQHfv9x8O7WsWZHv5ZdAOuAXUtNKzU6NmIL6gTtLJMkEibJlfVOSg/132','oOUlN1AsKunUvjkSQ71xQztmwY1A',NULL);
+commit;
 -- ----------------------------
 -- Table structure for nideshop_user_coupon
 -- ----------------------------

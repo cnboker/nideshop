@@ -23,10 +23,14 @@ export function filterItems(filter) {
 
   tokens.rewrite = function(key, fc) {
     const arr = this[key];
+    if (!arr) {
+      return this;
+    }
     for (let i = 0; i < arr.length; i++) {
-      if (i % 2 !== 0) {
-        arr[i] = fc(arr[i]);
-      }
+      const [smbal, value] = fc(arr[i], arr[i + 1]);
+      arr[i] = smbal;
+      arr[i + 1] = value;
+      i++;
     }
     return this;
   };
@@ -47,8 +51,12 @@ export function filterItems(filter) {
           }
           if (value instanceof Array) {
             value = `(${value})`;
+          };
+          let s = `\`${key}\` ${smbol} ${value}`;
+          if (key.indexOf('.') > 0) {
+            const [table, columName] = key.split('.');
+            s = `\`${table}\`.${columName} ${smbol} ${value}`;
           }
-          const s = `\`${key}\` ${smbol} ${value}`;
           if (smbol === 'like') {
             orList.push(s);
           } else {

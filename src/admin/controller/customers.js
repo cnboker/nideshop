@@ -3,15 +3,12 @@ const Base = require('./base.js');
 module.exports = class extends Base {
   async indexAction() {
     const {page, size, sqlToken, sort} = this.queryParams();
-
+    if (!think.isEmpty(sqlToken.has_ordered)) {
+      return this.newCustomersList(page, size);
+    }
     // eslint-disable-next-line camelcase const {groups, nb_commands, last_seen, q}
     // = filter;
     const modelQuery = this.model('user');
-    // const whereQuery = {}; if (!think.isEmpty(groups)) {   whereQuery.groups =
-    // ['like', `%${groups}%`]; } if (!think.isEmpty(q)) {   whereQuery.nickname =
-    // ['like', `%${q}%`]; } // 有下单 if (!think.isEmpty(nb_commands)) {} if
-    // (!think.isEmpty(last_seen)) {   whereQuery.last_login_time = [     '>=',
-    // `${this.getTime(last_seen)}`   ]; }
     const whereSQL = sqlToken
       .replace('nb_commands', '')
       .replace('q', 'nickname')
@@ -37,6 +34,22 @@ module.exports = class extends Base {
       .split(',');
     item.birthday = item.birthday * 1000;
     return item;
+  }
+
+  async newCustomersList(page, size) {
+    const data = await this
+      .model('user')
+      .field(['nideshop_user.id', 'nideshop_user.avatar', 'nideshop_user.nickname'])
+      .join('nideshop_order on nideshop_user.id = nideshop_order.user_id')
+      .where({
+        register_time: [
+          '>=', this.addHour(-24 * 30)
+        ]
+      })
+      .order(['register_time desc'])
+      .page(page, size)
+      .countSelect();
+    return this.simplePageRest(data);
   }
 
   async getAction() {

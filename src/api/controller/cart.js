@@ -280,8 +280,7 @@ module.exports = class extends Base {
     }
     // 获取我的卡信息
     let mycard = await this.getMycard();
-    //  console.log('mycard', mycard);
-    // 没有开卡会员
+    //  console.log('mycard', mycard); 没有开卡会员
     if (!mycard) {
       if (cardId > 0) {
         const card = await this
@@ -291,8 +290,21 @@ module.exports = class extends Base {
         mycard = {
           ...card,
           id: 0,
-          cardId: card.id
+          card_id: card.id
         };
+        const hasOrders = await this
+          .model('order')
+          .where({
+            user_id: this.getLoginUserId()
+          })
+          .count('id') > 0;
+          // 下过单的用户让用户重新选择套餐
+        if (hasOrders && card.name === '体验卡') {
+          mycard = {
+            id: 0,
+            card_id: 0
+          };
+        }
         // console.log('mycard', mycard);
       }
     }
@@ -320,7 +332,19 @@ module.exports = class extends Base {
     const goodsTotalPrice = cartData.cartTotal.checkedGoodsAmount; // 商品总价
     const orderTotalPrice = cartData.cartTotal.checkedGoodsAmount + freightPrice - couponPrice; // 订单的总价
     const actualPrice = orderTotalPrice - 0.00; // 减去其它支付的金额后，要实际支付的金额
-    const deposit = +think.config('deposit'); // 押金
+    let deposit = +think.config('deposit'); // 押金
+    // 计算有无历史押金, 有历史押金不用交押金
+    const historyDeposit = await this
+      .model('invoice')
+      .where({
+        feeType: 1,
+        user_id: this.getLoginUserId()
+      })
+      .sum('total');
+    if (historyDeposit > 0) {
+      deposit = 0;
+    }
+    const skipPay = !!mycard && mycard.id > 0 && mycard.isValid;
     return this.success({
       checkedAddress: checkedAddress,
       freightPrice: freightPrice,
@@ -331,9 +355,11 @@ module.exports = class extends Base {
       goodsTotalPrice: goodsTotalPrice,
       orderTotalPrice: orderTotalPrice,
       actualPrice: actualPrice,
-      // cardId=0说明用户名还没有开卡，这里返回{},cardId>0则到mycard表查找有无可用卡记录，有则返回，没有则创建一个新的未付款mycard记录
+      // cardId=0说明用户名还没有开卡，这里返回{},cardId>0则到mycard表查找有无可用卡记录，有则返回，没有则创建一个新的未付款mycard记
+      // 录
       checkedMycard: mycard || {},
-      deposit
+      deposit,
+      skipPay
     });
   }
 };

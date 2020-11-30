@@ -7,6 +7,7 @@ module.exports = class extends Base {
       .field(['nideshop_mycard.*', 'nideshop_user.nickname', 'nideshop_user.mobile'])
       .join('nideshop_user on nideshop_user.id=nideshop_mycard.user_id');
     const whereSQL = sqlToken
+      .replace('id', 'nideshop_mycard.id')
       .replace('q', 'nickname|mobile') // like '%nickname%' or like '%mobile%'
       .toTime('date')
       .toWhereSQL();

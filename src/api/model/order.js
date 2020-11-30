@@ -13,7 +13,7 @@ module.exports = class extends think.Model {
       comment: false, // 评论操作
       delivery: false, // 确认收货操作
       confirm: false, // 完成订单操作
-      return: false, // 退换货操作
+      return: false, // 还书操作
       buy: false // 再次购买
     };
 
@@ -50,11 +50,11 @@ module.exports = class extends think.Model {
       handleOption.return = true;
     }
 
-    // 如果订单已经支付，且已经收货，则可完成交易、评论和再次购买
+    // 如果订单已经支付，且已经收货，则可完成交易、支持还书
     if (orderInfo.order_status === 301) {
-      handleOption.delete = true;
+      // handleOption.delete = true;
       handleOption.comment = true;
-      handleOption.buy = true;
+      handleOption.return = true;
     }
 
     return handleOption;

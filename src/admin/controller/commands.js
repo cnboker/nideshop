@@ -1,11 +1,11 @@
 const Base = require('./base.js');
 const {getOrderStatusText} = require('../../common/util');
 
-const orderStatus = {
-  ordered: 0,
-  delivered: 1,
-  cancelled: 2
-};
+// const orderStatus = {
+//   ordered: 201,
+//   delivered: 300,
+//   returning: 501
+// };
 // order
 module.exports = class extends Base {
   /**
@@ -19,8 +19,14 @@ module.exports = class extends Base {
       .replace('customer_id', 'user_id')
       .replace('q', 'mobile|order_sn')
       .replace('status', 'order_status')
-      .rewrite('order_status', (value) => {
-        return orderStatus[value];
+      .rewrite('order_status', (smbal, value) => {
+        if (value === 'delivered') {
+          return ['in', [300, 301]];
+        }
+        if (value === 'returning') {
+          return ['in', [501, 502]];
+        }
+        return [smbal, value];
       })
       .toWhereSQL();
 
@@ -66,12 +72,16 @@ module.exports = class extends Base {
     data.data = newList;
     return this.simplePageRest(data);
   }
-
   async getAction() {
     const id = this.get('id');
     if (!id) {
       return this.indexAction();
+    } else {
+      return this.getDetail(id);
     }
+  }
+
+  async getDetail(id) {
     const model = this.model('order');
     const data = await model
       .where({id: id})
@@ -93,6 +103,63 @@ module.exports = class extends Base {
       .select();
     data.order_status_text = getOrderStatusText(data.order_status);
     return this.simpleRest(data);
+  }
+
+  async putAction() {
+    const id = this.get('id');
+    const order = await this
+      .model('order')
+      .where({id: id})
+      .find();
+    if (!order) {
+      return this.badRequest(`${id} 订单未发现`);
+    }
+    const values = this.post();
+    if (values.order_status === 300) { // 已发货
+      if (order.order_status === 300) {
+        return this.badRequest('订单状态已更新，不能重复更新，操作失败');
+      }
+      values.shipping_time = this.getTime();
+      const mycard = await this
+        .model('mycard')
+        .where({id: order.mycard_id})
+        .find();
+      if (mycard.useTimes > 0) {
+        mycard.leftTimes -= 1; // 卡次为0作废
+        if (mycard.leftTimes <= 0) {
+          mycard.isValid = false;
+          mycard.remark = '次卡用完';
+        }
+        await this
+          .model('mycard')
+          .update(mycard);
+      }
+    } else if (values.order_status === 301) { // 用户已收货
+      if (order.order_status === 301) {
+        return this.badRequest('订单状态已更新，不能重复更新，操作失败');
+      }
+      values.receiving_time = this.getTime();
+      values.expired_time = this.addHour(30 * 24);
+    } else if (values.order_status === 501) {
+      if (order.order_status === 501) {
+        return this.badRequest('订单状态已更新，不能重复更新，操作失败');
+      }
+      // 用户一键还书
+      values.returning_time = this.getTime();
+    } else if (values.order_status === 502) { // 已还书
+      if (order.order_status === 502) {
+        return this.badRequest('订单状态已更新，不能重复更新，操作失败');
+      }
+      values.return_time = this.getTime();
+    } else {
+      return this.badRequest('未处理的订单状态，操作失败');
+    }
+    await this
+      .model('order')
+      .where({id: id})
+      .update(values);
+
+    return this.getDetail(id);
   }
 
   async postAction() {

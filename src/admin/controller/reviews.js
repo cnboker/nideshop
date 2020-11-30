@@ -1,19 +1,14 @@
 const Base = require('./base.js');
 
 module.exports = class extends Base {
-  rewriteParams(key, value) {
-    if (key === 'customer_id') {
-      return {user_id: value};
-    }
-  }
   async indexAction() {
-    const {page, size, filter, sort} = this.queryParams();
+    const {page, size, whereSQL, sort} = this.queryParams();
     // const productId = this.get('productId') || 0;
     const model = this.model('comment');
     // const result = await model.where({value_id: productId, type_id:
     // 0}).order(['id DESC']).page(page, size).countSelect();
     const result = await model
-      .where(filter)
+      .where(whereSQL)
       .order(sort)
       .page(page, size)
       .countSelect();

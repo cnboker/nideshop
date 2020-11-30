@@ -30,7 +30,7 @@ module.exports = class extends Base {
         });
 
       // 订单状态的处理
-      item.order_status_text = getOrderStatusText(item.id);
+      item.order_status_text = getOrderStatusText(item.order_status);
 
       // 可操作的选项
       item.handleOption = await this
@@ -44,6 +44,43 @@ module.exports = class extends Base {
     return this.success(orderList);
   }
 
+  async returnListAction() {
+    const orderList = await this
+      .model('order')
+      .where({
+        user_id: this.getLoginUserId(),
+        order_status: ['>=', 301] // 用户已收货
+      })
+      .page(1, 10)
+      .countSelect();
+    const newOrderList = [];
+    for (const item of orderList.data) {
+      // 订单的商品
+      item.goodsList = await this
+        .model('order_goods')
+        .where({order_id: item.id})
+        .select();
+      item.goodsCount = 0;
+      item
+        .goodsList
+        .forEach(v => {
+          item.goodsCount += v.number;
+        });
+
+      // 订单状态的处理
+      item.order_status_text = getOrderStatusText(item.order_status);
+
+      // 可操作的选项
+      item.handleOption = await this
+        .model('order')
+        .getOrderHandleOption(item.id);
+
+      newOrderList.push(item);
+    }
+    orderList.data = newOrderList;
+
+    return this.success(orderList);
+  }
   // 获取书单详情
   async detailAction() {
     const orderId = this.get('orderId');
@@ -137,6 +174,14 @@ module.exports = class extends Base {
       return this.fail('请选择商品');
     }
 
+    // 校验订单
+    const orderCount = await this
+      .model('order')
+      .where(`order_status in (0, 201, 300, 301)`) // 包含未处理订单，已付款订单，已发货，已收货订单不能二次下单
+      .count();
+    if (orderCount > 0) {
+      return this.fail('请还书后在借阅');
+    }
     // 统计商品总价 let goodsTotalPrice = 0.00; for (const cartItem of checkedGoodsList) {
     //   goodsTotalPrice += cartItem.number * cartItem.retail_price; }
 
@@ -160,8 +205,8 @@ module.exports = class extends Base {
     const currentTime = parseInt(Date.now() / 1000);
     // eslint-disable-next-line camelcase
     const order_sn = this.generateOrderNumber();
-    const deposit = +think.config('deposit'); // 押金
-    // actualPrice += diposit; 新卡
+    let deposit = +think.config('deposit'); // 押金
+    // actualPrice += diposit; 新卡 eslint-disable-next-line camelcase
     // eslint-disable-next-line camelcase
     let pay_status = 1;
     const mycard = await this.getMycard();
@@ -169,6 +214,16 @@ module.exports = class extends Base {
     if (!mycard) {
       // eslint-disable-next-line camelcase
       pay_status = 0;
+      const historyDeposit = await this
+        .model('invoice')
+        .where({
+          feeType: 1,
+          user_id: this.getLoginUserId()
+        })
+        .sum('total');
+      if (historyDeposit > 0) {
+        deposit = 0;
+      }
       // 增加payment
       const payment = {
         order_sn,
@@ -190,7 +245,9 @@ module.exports = class extends Base {
 
     const orderInfo = {
       order_sn,
-      mycard_id: mycard ? mycard.id : 0,
+      mycard_id: mycard
+        ? mycard.id
+        : 0,
       user_id: this.getLoginUserId(),
       // 收货地址和运费
       consignee: checkedAddress.name,
@@ -211,7 +268,10 @@ module.exports = class extends Base {
       add_time: currentTime,
       goods_price: 0,
       order_price: 0,
-      actual_price: 0
+      actual_price: 0,
+      order_status: mycard
+        ? 201
+        : 0
     };
 
     // 开启事务，插入订单信息和订单商品
