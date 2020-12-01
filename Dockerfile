@@ -13,11 +13,12 @@ RUN npm install
 COPY . /usr/src/nideshop
 
 # Specify port app runs on
-EXPOSE 3001
+EXPOSE 8360
 
 # Run the app
 CMD [ "npm", "start" ]
 
-#To build the docker image
-#docker build -t szsong100/kwpolish:v1 .
-#docker run -d -p 3333:3000 szsong100/kwpolish:v1
+#To build the docker image,docker build [username]/[tag] [dockerfile location]
+#docker build -t scott/nideshop:latest .
+#run
+# docker run -p 8000:3001 scott/nideshop
