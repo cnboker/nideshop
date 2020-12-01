@@ -2,12 +2,13 @@ database:
     image: mysql:5.7
     ports:
         - "33061:3306"
-    command: --init-file /data/application/init.sql
+    command: --init-file /data/application/nideshop.sql
     volumes:
-        - ./init.sql:./nideshop.sql
+        - ./nideshop.sql:/data/application/nideshop.sql
+        - /opt/mysql_data:/var/lib/mysql
     environment:
         MYSQL_ROOT_USER: root
         MYSQL_ROOT_PASSWORD: szsong100
         MYSQL_DATABASE: nideshop
         MYSQL_USER: root
-        MYSQL_PASSWORD: szosng100
+        MYSQL_PASSWORD: szsong100
