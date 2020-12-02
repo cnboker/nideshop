@@ -14,11 +14,11 @@ module.exports = class extends Base {
       .where({is_new: 1})
       .limit(4)
       .select();
-    const self = this;
+    
     newGoods = newGoods.map((x) => ({
       ...x,
       ...{
-        'list_pic_url': `http://${self.ctx.host}${x.list_pic_url}`
+        'list_pic_url': `${x.list_pic_url}`
       }
     }));
     let hotGoods = await this
@@ -31,7 +31,7 @@ module.exports = class extends Base {
     hotGoods = hotGoods.map((x) => ({
       ...x,
       ...{
-        'list_pic_url': `http://${self.ctx.host}${x.list_pic_url}`
+        'list_pic_url': `${x.list_pic_url}`
       }
     }));
     // const brandList = await this.model('brand').where({is_new:
@@ -64,7 +64,7 @@ module.exports = class extends Base {
       const goodsList = categoryGoods.map((x) => ({
         ...x,
         ...{
-          list_pic_url: `http://${self.ctx.host}${x.list_pic_url}`
+          list_pic_url: `${x.list_pic_url}`
         }
       }));
       newCategoryList.push({id: categoryItem.id, name: categoryItem.name, goodsList});

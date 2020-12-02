@@ -5,8 +5,8 @@ module.exports = {
   deposit: 200, // 押金200
   lateFee: 0.5, // 滞纳金每天5毛
   weixin: {
-    appid: 'wxf28553cb86b1871b', // 小程序 appid
-    secret: 'b3f47a8759245582c69dc5a0c3f3a7a7', // 小程序密钥
+    appid: 'wx0c673810a891c1cd', // 小程序 appid
+    secret: '3a34ddf850e782961e8d270e733d3f54', // 小程序密钥
     mch_id: '1316479701', // 商户帐号ID
     partner_key: '', // 微信支付密钥
     notify_url: '' // 微信异步通知，例：https://www.nideshop.com/api/pay/notify
