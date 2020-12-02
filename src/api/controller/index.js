@@ -14,7 +14,7 @@ module.exports = class extends Base {
       .where({is_new: 1})
       .limit(4)
       .select();
-    
+
     newGoods = newGoods.map((x) => ({
       ...x,
       ...{
