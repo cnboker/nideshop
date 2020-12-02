@@ -188,7 +188,7 @@ module.exports = class extends Base {
     const cardId = this.post('cardId');
     // const goodsTotalPrice = 0.00;
     const card = await this
-      .model('userCard')
+      .model('usercard')
       .where({id: cardId})
       .find();
     if (!card) {
