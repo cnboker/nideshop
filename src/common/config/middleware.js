@@ -1,7 +1,7 @@
 const path = require('path');
 const isDev = think.env === 'development';
 const kcors = require('kcors');
-
+const cors = require('@koa/cors');
 module.exports = [
   {
     handle: kcors, // 处理跨域
@@ -40,6 +40,9 @@ module.exports = [
       defaultController: 'index',
       defaultAction: 'index'
     }
+  },
+  {
+    handle: cors
   },
   'logic',
   'controller'
