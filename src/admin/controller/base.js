@@ -2,9 +2,7 @@
 import parseQueryString from './parseQueryString';
 import {filterItems} from './filterItems';
 module.exports = class extends think.Controller {
-  async __after() {
-    this.header('Access-Control-Allow-Credentials', true);
-  }
+
   async __before() {
     // 根据token值获取用户id
     this.ctx.state.token = this.ctx.header['x-nideshop-token'] || '';
