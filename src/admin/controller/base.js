@@ -2,7 +2,6 @@
 import parseQueryString from './parseQueryString';
 import {filterItems} from './filterItems';
 module.exports = class extends think.Controller {
-
   async __before() {
     // 根据token值获取用户id
     this.ctx.state.token = this.ctx.header['x-nideshop-token'] || '';
@@ -19,8 +18,9 @@ module.exports = class extends think.Controller {
       this.ctx.req.queryString = decodeURIComponent(this.ctx.req.url.slice(this.ctx.req.url.indexOf('?') + 1));
     }
     // const newLocal = this.ctx.req;
-    const params = parseQueryString(this.ctx.req.queryString);
-
+    const params = parseQueryString(this.ctx.req.queryString) || {
+      filter: {}
+    };
     // eslint-disable-next-line no-console console.log('this.ctx.req.params',
     // params, this.ctx.req.queryString);
     if (params) {
@@ -50,10 +50,10 @@ module.exports = class extends think.Controller {
   }
 
   queryParams() {
-    const params = this.ctx.req.params;
+    const params = this.ctx.req.params || {};
     return {
-      size: params.size,
-      page: params.page,
+      size: params.size || 19,
+      page: params.page || 0,
       sort: params.sort
         ? params
           .sort
@@ -97,7 +97,7 @@ module.exports = class extends think.Controller {
 
   addHour(hours) {
     // eslint-disable-next-line no-extend-native
-    Date.prototype.addHours = function(h) {
+    Date.prototype.addHours = function (h) {
       this.setHours(this.getHours() + h);
       return this;
     };

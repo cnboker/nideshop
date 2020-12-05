@@ -1,5 +1,6 @@
 const Base = require('./base.js');
 // var moment = require('moment');
+const {g} = require('../../common/util');
 module.exports = class extends Base {
   async indexAction() {
     const {page, size, sqlToken, sort} = this.queryParams();
@@ -20,14 +21,22 @@ module.exports = class extends Base {
       .order(sort)
       .page(page, size)
       .countSelect();
-    result.data = result
+
+    const ids = result
       .data
-      .map(x => {
-        return this.outConvert(x);
-      });
+      .map(x => x.id);
+    const orderResult = await this.model('user').getOrderStats(ids);
+    const invoiceResult = await this.model('user').getInvoiceStats(ids);
+    // const invoiceRecently = await this.model('user').getRecentlyInvoiceStats(ids);
+    for (const user of result.data) {
+      user.nb_commands = g(orderResult.find(x => x.user_id === user.id), 'orderCount') || 0;
+      user.total_spent = g(invoiceResult.find(x => x.user_id === user.id), 'total') || 0;
+      // user.latest_purchase = g(invoiceRecently.find(x => x.user_id === user.id), 'total') || 0;
+      user.groups = (user.groups || '').split(',');
+    }
+
     return this.simplePageRest(result);
   }
-
   outConvert(item) {
     item.groups = (item
       .groups || '')
@@ -35,7 +44,6 @@ module.exports = class extends Base {
     item.birthday = item.birthday * 1000;
     return item;
   }
-
   async newCustomersList(page, size) {
     const data = await this
       .model('user')

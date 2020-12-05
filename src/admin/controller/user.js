@@ -6,17 +6,15 @@ module.exports = class extends Base {
    * @return {Promise} []
    */
   async indexAction() {
-    const {page, size, filter, sort} = this.queryParams();
+    const {page = 1, size = 30, sort} = this.queryParams();
     const model = this.model('user');
     const data = await model
-      .where(filter)
+      // .where(filter)
       .order(sort)
       .page(page, size)
       .countSelect();
-
     return this.simplePageRest(data);
   }
-
   async timeAction() {
     return Date.now();
   }

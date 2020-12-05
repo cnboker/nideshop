@@ -34,3 +34,14 @@ export const getOrderStatusText = (orderStatus) => {
 
   return statusText;
 };
+
+// 优雅的获取对象属性
+export const g = (obj, key) => {
+  return key
+    .split('.')
+    .reduce((o, x) => {
+      return (typeof o === 'undefined' || o === null)
+        ? o
+        : o[x];
+    }, obj);
+};
